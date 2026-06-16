@@ -69,7 +69,7 @@ export default function Sidebar({ activeTab, setActiveTab }: SidebarProps) {
                 }}
                 className={`w-full flex items-center gap-3.5 px-4 py-3 rounded-xl text-sm font-medium transition-all duration-200 group ${
                   isActive
-                    ? "bg-indigo-600/15 border-l-4 border-indigo-500 text-white shadow-[inset_0_1px_0_rgba(255,255,255,0.05)]"
+                    ? "bg-indigo-600/15 text-white"
                     : "text-muted-foreground-custom hover:text-white hover:bg-zinc-900/40"
                 }`}
               >
