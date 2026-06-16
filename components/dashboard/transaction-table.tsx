@@ -8,6 +8,7 @@ interface TransactionTableProps {
   searchQuery?: string;
   setSearchQuery?: (query: string) => void;
   refreshKey?: number;
+  currency?: string;
 }
 
 const formatTransactionId = (t: any) => {
@@ -26,7 +27,8 @@ const formatTransactionId = (t: any) => {
 export default function TransactionTable({ 
   searchQuery: propSearchQuery, 
   setSearchQuery: propSetSearchQuery,
-  refreshKey 
+  refreshKey,
+  currency = "USD"
 }: TransactionTableProps) {
   const [filterType, setFilterType] = useState<"all" | "income" | "expense">("all");
   const [localSearchQuery, setLocalSearchQuery] = useState("");
@@ -34,6 +36,19 @@ export default function TransactionTable({
 
   const searchQuery = propSearchQuery !== undefined ? propSearchQuery : localSearchQuery;
   const setSearchQuery = propSetSearchQuery !== undefined ? propSetSearchQuery : setLocalSearchQuery;
+
+  const getCurrencySymbol = (cur: string) => {
+    switch (cur) {
+      case "EUR": return "€";
+      case "IDR": return "Rp";
+      case "GBP": return "£";
+      case "USD":
+      default:
+        return "$";
+    }
+  };
+
+  const symbol = getCurrencySymbol(currency);
 
   useEffect(() => {
     async function fetchTransactions() {
@@ -194,7 +209,7 @@ export default function TransactionTable({
                         : "text-rose-400"
                     }`}
                   >
-                    {tx.type === "income" ? "+" : "-"}${tx.amount.toFixed(2)}
+                    {tx.type === "income" ? "+" : "-"}{symbol}{tx.amount.toFixed(2)}
                   </td>
 
                   {/* Status */}
