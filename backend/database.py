@@ -1,7 +1,7 @@
 from motor.motor_asyncio import AsyncIOMotorClient
 
 MONGO_URL = "mongodb+srv://kassa:kodingansampah@kassa-db.oyfz85q.mongodb.net/?appName=kassa-db"
-client = AsyncIOMotorClient(MONGO_URL)
+client = AsyncIOMotorClient(MONGO_URL, serverSelectionTimeoutMS=3000)
 db = client.kassa_db
 
 def transaction_helper(transaction) -> dict:
