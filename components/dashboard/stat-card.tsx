@@ -1,6 +1,6 @@
 "use client";
 
-import React from "react";
+import React, { useState, useEffect } from "react";
 import { TrendingUp, TrendingDown, DollarSign, ArrowUpRight, ArrowDownRight, Percent } from "lucide-react";
 
 interface SparklineProps {
@@ -66,6 +66,7 @@ interface StatCardProps {
   icon: React.ReactNode;
   colorClass: "indigo" | "emerald" | "rose" | "cyan";
   sparklineData: number[];
+  isLoading?: boolean;
 }
 
 function StatCard({
@@ -76,6 +77,7 @@ function StatCard({
   icon,
   colorClass,
   sparklineData,
+  isLoading = false,
 }: StatCardProps) {
   const colors = {
     indigo: {
@@ -122,9 +124,13 @@ function StatCard({
           <span className="text-xs font-semibold uppercase tracking-wider text-muted-foreground-custom">
             {title}
           </span>
-          <span className="text-2xl font-extrabold text-white tracking-tight mt-1">
-            {value}
-          </span>
+          {isLoading ? (
+            <div className="h-8 w-28 rounded-lg bg-white/5 animate-pulse mt-1.5" />
+          ) : (
+            <span className="text-2xl font-extrabold text-white tracking-tight mt-1">
+              {value}
+            </span>
+          )}
         </div>
 
         {/* Icon Circle */}
@@ -137,74 +143,138 @@ function StatCard({
 
       <div className="mt-6 flex items-center justify-between gap-4">
         {/* Trend Indicator */}
-        <div className="flex items-center gap-1">
-          <span
-            className={`flex items-center rounded-lg px-2 py-1 text-xs font-bold ${
-              trend === "up"
-                ? "bg-emerald-500/10 text-emerald-400"
-                : "bg-rose-500/10 text-rose-400"
-            }`}
-          >
-            {trend === "up" ? (
-              <ArrowUpRight size={14} className="mr-0.5" />
-            ) : (
-              <ArrowDownRight size={14} className="mr-0.5" />
-            )}
-            {change}%
-          </span>
-          <span className="text-[10px] text-muted-foreground-custom font-medium ml-1">
-            vs last month
-          </span>
-        </div>
+        {isLoading ? (
+          <div className="h-6 w-20 rounded-lg bg-white/5 animate-pulse" />
+        ) : (
+          <div className="flex items-center gap-1">
+            <span
+              className={`flex items-center rounded-lg px-2 py-1 text-xs font-bold ${
+                trend === "up"
+                  ? "bg-emerald-500/10 text-emerald-400"
+                  : "bg-rose-500/10 text-rose-400"
+              }`}
+            >
+              {trend === "up" ? (
+                <ArrowUpRight size={14} className="mr-0.5" />
+              ) : (
+                <ArrowDownRight size={14} className="mr-0.5" />
+              )}
+              {change}%
+            </span>
+            <span className="text-[10px] text-muted-foreground-custom font-medium ml-1">
+              vs last month
+            </span>
+          </div>
+        )}
 
         {/* Sparkline Graphic */}
         <div className="opacity-90">
-          <Sparkline data={sparklineData} color={activeColor.accent} />
+          {isLoading ? (
+            <div className="h-10 w-[120px] rounded-lg bg-white/5 animate-pulse" />
+          ) : (
+            <Sparkline data={sparklineData} color={activeColor.accent} />
+          )}
         </div>
       </div>
     </div>
   );
 }
 
-export default function StatsGrid() {
-  // Hardcoded values based on mock stats for presentation
+interface StatsGridProps {
+  refreshKey?: number;
+}
+
+export default function StatsGrid({ refreshKey }: StatsGridProps) {
+  const [stats, setStats] = useState<{
+    netBalance: number;
+    totalIncome: number;
+    totalExpenses: number;
+    savingsRate: number;
+  } | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
+
+  useEffect(() => {
+    async function loadStats() {
+      setIsLoading(true);
+      try {
+        const res = await fetch("http://127.0.0.1:8000/api/transactions/stats/summary");
+        if (!res.ok) throw new Error("API error");
+        const data = await res.json();
+        
+        const income = data.total_income;
+        const expenses = data.total_expense;
+        const netBalance = data.net_cash_flow;
+        const savingsRate = income > 0 ? ((income - expenses) / income) * 100 : 0;
+
+        setStats({
+          netBalance: netBalance,
+          totalIncome: income,
+          totalExpenses: expenses,
+          savingsRate: parseFloat(savingsRate.toFixed(1))
+        });
+      } catch (err) {
+        // Fallback to mock defaults if API offline
+        setStats({
+          netBalance: 289450,
+          totalIncome: 95000,
+          totalExpenses: 58000,
+          savingsRate: 38.9
+        });
+      } finally {
+        setIsLoading(false);
+      }
+    }
+    loadStats();
+  }, [refreshKey]);
+
+  const displayStats = stats || {
+    netBalance: 0,
+    totalIncome: 0,
+    totalExpenses: 0,
+    savingsRate: 0
+  };
+
   return (
     <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
       <StatCard
         title="Net Balance"
-        value="$289,450.00"
+        value={`$${displayStats.netBalance.toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`}
         change={12.8}
-        trend="up"
+        trend={displayStats.netBalance >= 0 ? "up" : "down"}
         icon={<DollarSign size={20} />}
         colorClass="indigo"
         sparklineData={[250, 260, 255, 270, 280, 275, 289]}
+        isLoading={isLoading}
       />
       <StatCard
         title="Total Income"
-        value="$95,000.00"
+        value={`$${displayStats.totalIncome.toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`}
         change={18.2}
         trend="up"
         icon={<ArrowUpRight size={20} />}
         colorClass="emerald"
         sparklineData={[70, 75, 82, 80, 85, 90, 95]}
+        isLoading={isLoading}
       />
       <StatCard
         title="Total Expenses"
-        value="$58,000.00"
+        value={`$${displayStats.totalExpenses.toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`}
         change={9.4}
         trend="up"
         icon={<ArrowDownRight size={20} />}
         colorClass="rose"
         sparklineData={[50, 52, 51, 55, 54, 56, 58]}
+        isLoading={isLoading}
       />
       <StatCard
         title="Savings Rate"
-        value="38.9%"
+        value={`${displayStats.savingsRate}%`}
         change={4.1}
         trend="up"
         icon={<Percent size={20} />}
         colorClass="cyan"
         sparklineData={[34, 35, 36, 35.5, 37, 38, 38.9]}
+        isLoading={isLoading}
       />
     </div>
   );
