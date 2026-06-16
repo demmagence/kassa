@@ -34,10 +34,16 @@ async def api_status():
 
 @app.post("/api/transactions", response_model=TransactionResponse, status_code=status.HTTP_201_CREATED)
 async def create_transaction(transaction: TransactionCreate):
-    new_trans_dict = transaction.model_dump()
-    result = await db.transactions.insert_one(new_trans_dict)
-    created_trans = await db.transactions.find_one({"_id": result.inserted_id})
-    return transaction_helper(created_trans)
+    try:
+        new_trans_dict = transaction.model_dump()
+        result = await db.transactions.insert_one(new_trans_dict)
+        created_trans = await db.transactions.find_one({"_id": result.inserted_id})
+        return transaction_helper(created_trans)
+    except Exception as e:
+        raise HTTPException(
+            status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
+            detail=f"Database connection error: {str(e)}"
+        )
 
 @app.get("/api/transactions", response_model=List[TransactionResponse])
 async def list_transactions(
