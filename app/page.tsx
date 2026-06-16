@@ -8,15 +8,77 @@ import CashFlowChart from "@/components/dashboard/cash-flow-chart";
 import TransactionTable from "@/components/dashboard/transaction-table";
 import NewTransactionModal from "@/components/dashboard/new-transaction-modal";
 import CustomSelect from "@/components/dashboard/custom-select";
-import { Settings, Shield, Sliders, Database, Sparkles } from "lucide-react";
+import { Settings, Shield, Sliders, Database, Sparkles, CheckCircle2, Info, X } from "lucide-react";
+
 
 export default function Home() {
   const [activeTab, setActiveTab] = useState("dashboard");
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [refreshKey, setRefreshKey] = useState(0);
   const [searchQuery, setSearchQuery] = useState("");
+
+  // Configuration States (Source of Truth)
+  const [accountName, setAccountName] = useState("Administrator");
+  const [corporateEmail, setCorporateEmail] = useState("admin@kassa.io");
   const [currency, setCurrency] = useState("USD");
   const [language, setLanguage] = useState("EN");
+
+  // Form Edit States
+  const [formAccountName, setFormAccountName] = useState("Administrator");
+  const [formCorporateEmail, setFormCorporateEmail] = useState("admin@kassa.io");
+  const [formCurrency, setFormCurrency] = useState("USD");
+  const [formLanguage, setFormLanguage] = useState("EN");
+
+  // Toast Notification States
+  const [toast, setToast] = useState<{ type: "success" | "info" | null; message: string }>({ type: null, message: "" });
+  const [activeToast, setActiveToast] = useState<{ type: "success" | "info" | null; message: string }>({ type: null, message: "" });
+
+  React.useEffect(() => {
+    if (toast.type) {
+      setActiveToast(toast);
+      const timer = setTimeout(() => {
+        setToast({ type: null, message: "" });
+      }, 4000);
+      return () => clearTimeout(timer);
+    }
+  }, [toast]);
+
+  React.useEffect(() => {
+    const savedName = localStorage.getItem("kassa_account_name");
+    const savedEmail = localStorage.getItem("kassa_corporate_email");
+    const savedCurrency = localStorage.getItem("kassa_currency");
+    const savedLanguage = localStorage.getItem("kassa_language");
+
+    if (savedName) {
+      setAccountName(savedName);
+      setFormAccountName(savedName);
+    }
+    if (savedEmail) {
+      setCorporateEmail(savedEmail);
+      setFormCorporateEmail(savedEmail);
+    }
+    if (savedCurrency) {
+      setCurrency(savedCurrency);
+      setFormCurrency(savedCurrency);
+    }
+    if (savedLanguage) {
+      setLanguage(savedLanguage);
+      setFormLanguage(savedLanguage);
+    }
+  }, []);
+
+  const getCurrencySymbol = (cur: string) => {
+    switch (cur) {
+      case "EUR": return "€";
+      case "IDR": return "Rp";
+      case "GBP": return "£";
+      case "USD":
+      default:
+        return "$";
+    }
+  };
+
+  const symbol = getCurrencySymbol(currency);
 
   const [stats, setStats] = useState<{
     netBalance: number;
@@ -75,13 +137,107 @@ export default function Home() {
 
   const budgetStatus = getBudgetStatus();
 
+  const addNotification = (message: string, type: "success" | "info" | "warning") => {
+    const saved = localStorage.getItem("kassa_notifications");
+    let list = [];
+    if (saved) {
+      try {
+        list = JSON.parse(saved);
+      } catch (e) {
+        list = [
+          {
+            id: "1",
+            type: "warning",
+            message: "Warning: Based on current burn rate, cash runway is under 30 days.",
+            time: "2 hours ago",
+            read: false,
+          },
+          {
+            id: "2",
+            type: "info",
+            message: "Invoice INV-2026-004 to Client A is overdue by 5 days.",
+            time: "5 hours ago",
+            read: false,
+          },
+          {
+            id: "3",
+            type: "success",
+            message: "Successfully synchronized database with MongoDB Atlas.",
+            time: "1 day ago",
+            read: true,
+          }
+        ];
+      }
+    } else {
+      list = [
+        {
+          id: "1",
+          type: "warning",
+          message: "Warning: Based on current burn rate, cash runway is under 30 days.",
+          time: "2 hours ago",
+          read: false,
+        },
+        {
+          id: "2",
+          type: "info",
+          message: "Invoice INV-2026-004 to Client A is overdue by 5 days.",
+          time: "5 hours ago",
+          read: false,
+        },
+        {
+          id: "3",
+          type: "success",
+          message: "Successfully synchronized database with MongoDB Atlas.",
+          time: "1 day ago",
+          read: true,
+        }
+      ];
+    }
+
+    const newNotification = {
+      id: Date.now().toString(),
+      type,
+      message,
+      time: "Just now",
+      read: false
+    };
+
+    localStorage.setItem("kassa_notifications", JSON.stringify([newNotification, ...list]));
+    triggerRefresh();
+  };
+
+  const handleSaveChanges = () => {
+    setAccountName(formAccountName);
+    setCorporateEmail(formCorporateEmail);
+    setCurrency(formCurrency);
+    setLanguage(formLanguage);
+
+    localStorage.setItem("kassa_account_name", formAccountName);
+    localStorage.setItem("kassa_corporate_email", formCorporateEmail);
+    localStorage.setItem("kassa_currency", formCurrency);
+    localStorage.setItem("kassa_language", formLanguage);
+
+    setToast({ type: "success", message: "General Configuration saved successfully!" });
+    triggerRefresh();
+  };
+
+  const handleCancelChanges = () => {
+    setFormAccountName(accountName);
+    setFormCorporateEmail(corporateEmail);
+    setFormCurrency(currency);
+    setFormLanguage(language);
+
+    setToast({ type: "info", message: "Changes discarded." });
+  };
+
+
   const renderContent = () => {
     switch (activeTab) {
       case "dashboard":
         return (
-          <div className="space-y-6">
+          <div key="dashboard-tab" className="space-y-6">
             {/* Stat Cards */}
-            <StatsGrid refreshKey={refreshKey} />
+            <StatsGrid refreshKey={refreshKey} currency={currency} />
 
             {/* Grid Layout for Charts & Lists */}
             <div className="grid gap-6 lg:grid-cols-3">
@@ -137,10 +293,10 @@ export default function Home() {
                     ) : (
                       <>
                         <p className="text-xs text-zinc-300 leading-relaxed mb-4">
-                          Your net balance is <strong className="text-emerald-400">${stats.netBalance.toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</strong> this month. This is driven by <strong className="text-emerald-400">${stats.totalIncome.toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</strong> in total revenue against <strong className="text-rose-400">${stats.totalExpenses.toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</strong> in operational expenses.
+                          Your net balance is <strong className="text-emerald-400">{symbol}{stats.netBalance.toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</strong> this month. This is driven by <strong className="text-emerald-400">{symbol}{stats.totalIncome.toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</strong> in total revenue against <strong className="text-rose-400">{symbol}{stats.totalExpenses.toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</strong> in operational expenses.
                         </p>
                         <p className="text-xs text-zinc-300 leading-relaxed">
-                          Based on your current spending patterns, we project your next month expenses to be around <strong className="text-rose-400">${stats.totalExpenses.toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</strong>, leaving an estimated savings rate of <strong className="text-cyan-400">{stats.savingsRate}%</strong>.
+                          Based on your current spending patterns, we project your next month expenses to be around <strong className="text-rose-400">{symbol}{stats.totalExpenses.toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</strong>, leaving an estimated savings rate of <strong className="text-cyan-400">{stats.savingsRate}%</strong>.
                         </p>
                       </>
                     )}
@@ -160,21 +316,21 @@ export default function Home() {
             </div>
 
             {/* Transaction Log */}
-            <TransactionTable refreshKey={refreshKey} searchQuery={searchQuery} setSearchQuery={setSearchQuery} />
+            <TransactionTable refreshKey={refreshKey} searchQuery={searchQuery} setSearchQuery={setSearchQuery} currency={currency} />
           </div>
         );
       case "transactions":
-        return <TransactionTable refreshKey={refreshKey} searchQuery={searchQuery} setSearchQuery={setSearchQuery} />;
+        return <TransactionTable refreshKey={refreshKey} searchQuery={searchQuery} setSearchQuery={setSearchQuery} currency={currency} />;
       case "analytics":
         return (
-          <div className="space-y-6">
-            <StatsGrid refreshKey={refreshKey} />
+          <div key="analytics-tab" className="space-y-6">
+            <StatsGrid refreshKey={refreshKey} currency={currency} />
             <CashFlowChart />
           </div>
         );
       case "settings":
         return (
-          <div className="grid gap-6 md:grid-cols-3">
+          <div key="settings-tab" className="grid gap-6 md:grid-cols-3">
             {/* Navigation links for settings */}
             <div className="glass-card p-4 rounded-2xl h-fit space-y-1">
               <button className="w-full flex items-center gap-3 px-4 py-2.5 rounded-xl text-xs font-semibold bg-indigo-600 text-white text-left">
@@ -207,7 +363,8 @@ export default function Home() {
                     <label className="text-[10px] uppercase font-bold text-muted-foreground-custom tracking-wider">Account Name</label>
                     <input
                       type="text"
-                      defaultValue="Administrator"
+                      value={formAccountName}
+                      onChange={(e) => setFormAccountName(e.target.value)}
                       className="h-10 rounded-xl border border-border-custom bg-zinc-950/40 px-3 text-xs font-medium text-white outline-none focus:border-indigo-500 focus:bg-zinc-900/60"
                     />
                   </div>
@@ -215,7 +372,8 @@ export default function Home() {
                     <label className="text-[10px] uppercase font-bold text-muted-foreground-custom tracking-wider">Corporate Email</label>
                     <input
                       type="email"
-                      defaultValue="admin@kassa.io"
+                      value={formCorporateEmail}
+                      onChange={(e) => setFormCorporateEmail(e.target.value)}
                       className="h-10 rounded-xl border border-border-custom bg-zinc-950/40 px-3 text-xs font-medium text-white outline-none focus:border-indigo-500 focus:bg-zinc-900/60"
                     />
                   </div>
@@ -226,8 +384,8 @@ export default function Home() {
                   <div className="flex flex-col gap-1.5">
                     <label className="text-[10px] uppercase font-bold text-muted-foreground-custom tracking-wider">Base Currency</label>
                     <CustomSelect
-                      value={currency}
-                      onChange={setCurrency}
+                      value={formCurrency}
+                      onChange={setFormCurrency}
                       options={[
                         { value: "USD", label: "USD ($) - US Dollar" },
                         { value: "EUR", label: "EUR (€) - Euro" },
@@ -240,8 +398,8 @@ export default function Home() {
                   <div className="flex flex-col gap-1.5">
                     <label className="text-[10px] uppercase font-bold text-muted-foreground-custom tracking-wider">Language Preference</label>
                     <CustomSelect
-                      value={language}
-                      onChange={setLanguage}
+                      value={formLanguage}
+                      onChange={setFormLanguage}
                       options={[
                         { value: "EN", label: "English" },
                         { value: "ID", label: "Bahasa Indonesia" },
@@ -255,10 +413,16 @@ export default function Home() {
               <hr className="border-border-custom" />
 
               <div className="flex justify-end gap-3">
-                 <button className="h-10 px-4 rounded-xl text-xs font-semibold border border-border-custom text-zinc-300 hover:text-white hover:bg-zinc-900/40 transition-colors flex items-center justify-center">
+                 <button 
+                   onClick={handleCancelChanges}
+                   className="h-10 px-4 rounded-xl text-xs font-semibold border border-border-custom text-zinc-300 hover:text-white hover:bg-zinc-900/40 transition-colors flex items-center justify-center"
+                 >
                    Cancel Changes
                  </button>
-                 <button className="h-10 px-4 rounded-xl text-xs font-semibold bg-indigo-600 text-white shadow-md shadow-indigo-500/20 hover:bg-indigo-500 transition-colors glow-primary flex items-center justify-center">
+                 <button 
+                   onClick={handleSaveChanges}
+                   className="h-10 px-4 rounded-xl text-xs font-semibold bg-indigo-600 text-white shadow-md shadow-indigo-500/20 hover:bg-indigo-500 transition-colors glow-primary flex items-center justify-center"
+                 >
                    Save Changes
                  </button>
               </div>
@@ -277,7 +441,12 @@ export default function Home() {
       <div className="ambient-glow bg-cyan-600/30 bottom-1/4 -right-64" />
 
       {/* Sidebar Navigation */}
-      <Sidebar activeTab={activeTab} setActiveTab={setActiveTab} />
+      <Sidebar 
+        activeTab={activeTab} 
+        setActiveTab={setActiveTab} 
+        accountName={accountName}
+        corporateEmail={corporateEmail}
+      />
 
       {/* Main Content Area */}
       <div className="flex flex-col flex-1 min-w-0 md:pl-64">
@@ -287,6 +456,7 @@ export default function Home() {
           onNewTransactionClick={() => setIsModalOpen(true)} 
           searchQuery={searchQuery}
           setSearchQuery={setSearchQuery}
+          refreshKey={refreshKey}
         />
 
         {/* Dashboard Dynamic Content Container */}
@@ -301,6 +471,37 @@ export default function Home() {
         onClose={() => setIsModalOpen(false)} 
         onAddSuccess={triggerRefresh} 
       />
+
+      {/* Floating Toast Notification */}
+      <div 
+        className={`fixed top-6 right-6 z-[100] w-full max-w-sm transition-all duration-300 ease-out ${
+          toast.type 
+            ? "opacity-100 translate-x-0 scale-100" 
+            : "opacity-0 translate-x-8 scale-95 pointer-events-none"
+        }`}
+      >
+        <div className={`flex items-center gap-3 p-4 rounded-xl backdrop-blur-xl border shadow-2xl text-xs font-semibold ${
+          activeToast.type === "success"
+            ? "bg-zinc-950/85 border-emerald-500/20 shadow-emerald-500/5 text-emerald-400"
+            : "bg-zinc-950/85 border-indigo-500/20 shadow-indigo-500/5 text-indigo-400"
+        }`}>
+          <div className={`flex-shrink-0 flex items-center justify-center w-8 h-8 rounded-lg ${
+            activeToast.type === "success" ? "bg-emerald-500/10 text-emerald-400" : "bg-indigo-500/10 text-indigo-400"
+          }`}>
+            {activeToast.type === "success" ? <CheckCircle2 size={18} /> : <Info size={18} />}
+          </div>
+          <div className="flex-1 min-w-0">
+            <p className="text-zinc-200 font-medium text-xs">{activeToast.message}</p>
+          </div>
+          <button
+            type="button"
+            onClick={() => setToast({ type: null, message: "" })}
+            className="p-1.5 rounded-lg hover:bg-white/5 text-zinc-400 hover:text-white transition-colors"
+          >
+            <X size={14} />
+          </button>
+        </div>
+      </div>
     </div>
   );
 }
