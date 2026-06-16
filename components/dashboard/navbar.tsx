@@ -62,18 +62,77 @@ export default function Navbar({
 
   const unreadCount = notifications.filter((n) => !n.read).length;
 
-  // Load from localStorage on mount
+  // Load transactions and format as notifications
   useEffect(() => {
-    const saved = localStorage.getItem("kassa_notifications");
-    if (saved) {
+    async function fetchRealNotifications() {
       try {
-        setNotifications(JSON.parse(saved));
-      } catch (e) {
+        const res = await fetch("http://127.0.0.1:8000/api/transactions");
+        if (!res.ok) throw new Error("API failed");
+        const transactions = await res.json();
+        
+        // Read currency setting
+        const cur = localStorage.getItem("kassa_currency") || "USD";
+        
+        // Read already read notification IDs
+        let readIds: string[] = [];
+        const savedRead = localStorage.getItem("kassa_read_notifications");
+        if (savedRead) {
+          try {
+            readIds = JSON.parse(savedRead);
+          } catch (_) {}
+        }
+        
+        const getCurrencySymbol = (currency: string) => {
+          switch (currency) {
+            case "EUR": return "€";
+            case "IDR": return "Rp";
+            case "GBP": return "£";
+            case "USD":
+            default:
+              return "$";
+          }
+        };
+
+        const getRelativeTime = (dateStr: string) => {
+          const date = new Date(dateStr);
+          const now = new Date();
+          const diffMs = now.getTime() - date.getTime();
+          const diffMins = Math.floor(diffMs / (1000 * 60));
+          const diffHours = Math.floor(diffMs / (1000 * 60 * 60));
+          const diffDays = Math.floor(diffMs / (1000 * 60 * 60 * 24));
+
+          if (diffMins < 1) return "Just now";
+          if (diffMins < 60) return `${diffMins} minutes ago`;
+          if (diffHours < 24) return `${diffHours} hours ago`;
+          if (diffDays === 1) return "1 day ago";
+          if (diffDays < 7) return `${diffDays} days ago`;
+          return date.toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" });
+        };
+
+        const mapped: NotificationItem[] = transactions.map((t: any) => {
+          const isIncome = t.type === "income";
+          const symbol = getCurrencySymbol(cur);
+          const amountFormatted = `${symbol}${t.amount.toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+          const id = t._id || t.id;
+          return {
+            id: id,
+            type: isIncome ? "success" : "info",
+            message: isIncome 
+              ? `Income of ${amountFormatted} (${t.category}) recorded successfully.`
+              : `Expense of ${amountFormatted} (${t.category}) recorded successfully.`,
+            time: getRelativeTime(t.date),
+            read: readIds.includes(id)
+          };
+        });
+
+        setNotifications(mapped);
+      } catch (err) {
+        console.error("Failed to load real notifications:", err);
+        // Fallback to mockNotifications if backend is not reachable
         setNotifications(mockNotifications);
       }
-    } else {
-      setNotifications(mockNotifications);
     }
+    fetchRealNotifications();
   }, [refreshKey]);
 
   // Close dropdown on click outside
@@ -90,10 +149,20 @@ export default function Navbar({
   const handleNotificationClick = () => {
     setShowNotifications(!showNotifications);
     if (!showNotifications) {
-      // Mark all as read when opening and save to localStorage
+      // Mark all as read when opening
       const updated = notifications.map((n) => ({ ...n, read: true }));
       setNotifications(updated);
-      localStorage.setItem("kassa_notifications", JSON.stringify(updated));
+      
+      let readIds: string[] = [];
+      const savedRead = localStorage.getItem("kassa_read_notifications");
+      if (savedRead) {
+        try {
+          readIds = JSON.parse(savedRead);
+        } catch (_) {}
+      }
+      
+      const allIds = Array.from(new Set([...readIds, ...notifications.map((n) => n.id)]));
+      localStorage.setItem("kassa_read_notifications", JSON.stringify(allIds));
     }
   };
 
