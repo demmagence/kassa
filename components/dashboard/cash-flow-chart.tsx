@@ -57,19 +57,109 @@ const CustomTooltip = ({ active, payload, label }: CustomTooltipProps) => {
 export default function CashFlowChart() {
   const [viewMode, setViewMode] = useState<"monthly" | "weekly">("monthly");
   const [mounted, setMounted] = useState(false);
+  const [chartData, setChartData] = useState<{
+    monthly: any[];
+    weekly: any[];
+  } | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
     setMounted(true);
   }, []);
 
-  const data = viewMode === "monthly" ? mockMonthlyCashFlow : mockWeeklyCashFlow;
+  useEffect(() => {
+    async function loadChartData() {
+      setIsLoading(true);
+      try {
+        const res = await fetch("http://127.0.0.1:8000/api/transactions");
+        if (!res.ok) throw new Error("API error");
+        const transactions = await res.json();
+
+        // 1. Calculate Monthly Cash Flow (for current year)
+        const monthly = [
+          { name: "Jan", income: 0, expense: 0, net: 0 },
+          { name: "Feb", income: 0, expense: 0, net: 0 },
+          { name: "Mar", income: 0, expense: 0, net: 0 },
+          { name: "Apr", income: 0, expense: 0, net: 0 },
+          { name: "May", income: 0, expense: 0, net: 0 },
+          { name: "Jun", income: 0, expense: 0, net: 0 },
+          { name: "Jul", income: 0, expense: 0, net: 0 },
+          { name: "Aug", income: 0, expense: 0, net: 0 },
+          { name: "Sep", income: 0, expense: 0, net: 0 },
+          { name: "Oct", income: 0, expense: 0, net: 0 },
+          { name: "Nov", income: 0, expense: 0, net: 0 },
+          { name: "Dec", income: 0, expense: 0, net: 0 },
+        ];
+
+        // 2. Calculate Weekly Cash Flow (current month)
+        const weekly = [
+          { name: "Week 1", income: 0, expense: 0, net: 0 },
+          { name: "Week 2", income: 0, expense: 0, net: 0 },
+          { name: "Week 3", income: 0, expense: 0, net: 0 },
+          { name: "Week 4", income: 0, expense: 0, net: 0 },
+        ];
+
+        const today = new Date();
+        const targetYear = today.getFullYear();
+        const targetMonth = today.getMonth();
+
+        transactions.forEach((tx: any) => {
+          const txDate = new Date(tx.date);
+          const y = txDate.getFullYear();
+          const m = txDate.getMonth();
+          const amt = tx.amount;
+
+          // Aggregation for Monthly (only for current year)
+          if (y === targetYear) {
+            if (tx.type === "income") {
+              monthly[m].income += amt;
+            } else if (tx.type === "expense") {
+              monthly[m].expense += amt;
+            }
+          }
+
+          // Aggregation for Weekly (only for current month and year)
+          if (y === targetYear && m === targetMonth) {
+            const day = txDate.getDate();
+            let weekIdx = 3;
+            if (day <= 7) weekIdx = 0;
+            else if (day <= 14) weekIdx = 1;
+            else if (day <= 21) weekIdx = 2;
+
+            if (tx.type === "income") {
+              weekly[weekIdx].income += amt;
+            } else if (tx.type === "expense") {
+              weekly[weekIdx].expense += amt;
+            }
+          }
+        });
+
+        // Compute net for each point
+        monthly.forEach(pt => { pt.net = pt.income - pt.expense; });
+        weekly.forEach(pt => { pt.net = pt.income - pt.expense; });
+
+        setChartData({ monthly, weekly });
+      } catch (err) {
+        // Fallback to mock data if API offline
+        setChartData({
+          monthly: mockMonthlyCashFlow,
+          weekly: mockWeeklyCashFlow
+        });
+      } finally {
+        setIsLoading(false);
+      }
+    }
+    loadChartData();
+  }, []);
+
+  const data = chartData ? chartData[viewMode] : [];
 
   const formatYAxis = (tick: number) => {
     if (tick >= 1000) return `$${(tick / 1000).toFixed(0)}K`;
     return `$${tick}`;
   };
 
-  if (!mounted) {
+  if (isLoading || !mounted) {
     return (
       <div className="glass-card p-6 rounded-2xl h-[420px] flex flex-col justify-between animate-pulse">
         <div className="h-6 w-1/4 bg-zinc-800 rounded" />
