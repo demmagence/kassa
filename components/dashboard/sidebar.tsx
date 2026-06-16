@@ -15,9 +15,16 @@ import {
 interface SidebarProps {
   activeTab: string;
   setActiveTab: (tab: string) => void;
+  accountName?: string;
+  corporateEmail?: string;
 }
 
-export default function Sidebar({ activeTab, setActiveTab }: SidebarProps) {
+export default function Sidebar({ 
+  activeTab, 
+  setActiveTab,
+  accountName = "Administrator",
+  corporateEmail = "admin@kassa.io"
+}: SidebarProps) {
   const [isOpen, setIsOpen] = useState(false);
 
   const navItems = [
@@ -88,12 +95,12 @@ export default function Sidebar({ activeTab, setActiveTab }: SidebarProps) {
         {/* Profile Card Footer */}
         <div className="p-4 border-t border-border-custom">
           <div className="flex items-center gap-3 p-2 rounded-xl bg-zinc-950/40 border border-border-custom/50">
-            <div className="w-9 h-9 rounded-lg bg-indigo-500/20 text-indigo-400 flex items-center justify-center">
+            <div className="w-9 h-9 rounded-lg bg-indigo-500/20 text-indigo-400 flex items-center justify-center flex-shrink-0">
               <User size={18} />
             </div>
             <div className="min-w-0 flex-1">
-              <p className="text-sm font-semibold text-white truncate">Administrator</p>
-              <p className="text-xs text-muted-foreground-custom truncate">admin@kassa.io</p>
+              <p className="text-sm font-semibold text-white truncate">{accountName}</p>
+              <p className="text-xs text-muted-foreground-custom truncate">{corporateEmail}</p>
             </div>
           </div>
         </div>

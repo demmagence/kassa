@@ -8,6 +8,7 @@ interface NavbarProps {
   onNewTransactionClick: () => void;
   searchQuery: string;
   setSearchQuery: (query: string) => void;
+  refreshKey?: number;
 }
 
 interface NotificationItem {
@@ -46,7 +47,8 @@ export default function Navbar({
   activeTab, 
   onNewTransactionClick, 
   searchQuery, 
-  setSearchQuery 
+  setSearchQuery,
+  refreshKey
 }: NavbarProps) {
   const [currentDate] = useState(() => {
     return new Date().toLocaleDateString("en-US", {
@@ -72,7 +74,7 @@ export default function Navbar({
     } else {
       setNotifications(mockNotifications);
     }
-  }, []);
+  }, [refreshKey]);
 
   // Close dropdown on click outside
   useEffect(() => {
