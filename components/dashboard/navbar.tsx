@@ -125,7 +125,7 @@ export default function Navbar({
       {/* Global Actions */}
       <div className="flex items-center gap-4">
         {/* Search Bar */}
-        {activeTab !== "dashboard" && (
+        {activeTab !== "dashboard" && activeTab !== "analytics" && (
           <div className="relative hidden max-w-xs md:block">
             <Search
               className="absolute top-1/2 left-3 h-4 w-4 -translate-y-1/2 text-muted-foreground-custom"
@@ -141,7 +141,7 @@ export default function Navbar({
         )}
 
         {/* Date Filter Quick View */}
-        {activeTab !== "transactions" && (
+        {activeTab !== "transactions" && activeTab !== "analytics" && (
           <div className="flex h-10 items-center gap-2 px-3.5 rounded-xl border border-border-custom bg-zinc-950/20 text-xs font-medium text-zinc-300">
             <Calendar size={14} className="text-indigo-400" />
             <span>{currentDate}</span>
@@ -149,7 +149,7 @@ export default function Navbar({
         )}
 
         {/* Notification Bell with Dropdown */}
-        {activeTab !== "transactions" && (
+        {activeTab !== "transactions" && activeTab !== "analytics" && (
           <div className="relative" ref={dropdownRef}>
             <button
               onClick={handleNotificationClick}
@@ -205,7 +205,7 @@ export default function Navbar({
         )}
 
         {/* Quick Action Button */}
-        {activeTab !== "dashboard" && (
+        {activeTab !== "dashboard" && activeTab !== "analytics" && (
           <button 
             onClick={onNewTransactionClick}
             className="flex h-10 items-center gap-1.5 rounded-xl bg-indigo-600 px-4 text-xs font-semibold text-white shadow-md shadow-indigo-500/20 transition-all hover:bg-indigo-500 glow-primary"
