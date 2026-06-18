@@ -55,12 +55,10 @@ export default function Navbar({
   language = "EN",
   currency = "USD"
 }: NavbarProps) {
-  const [currentDate] = useState(() => {
-    return new Date().toLocaleDateString("en-US", {
+  const currentDate = new Date().toLocaleDateString(language === "ID" ? "id-ID" : "en-US", {
       month: "long",
       year: "numeric",
     });
-  });
   const [showNotifications, setShowNotifications] = useState(false);
   const [notifications, setNotifications] = useState<NotificationItem[]>([]);
   const dropdownRef = useRef<HTMLDivElement>(null);
@@ -98,20 +96,8 @@ export default function Navbar({
           }
         };
 
-        const getRelativeTime = (dateStr: string) => {
-          const date = new Date(dateStr);
-          const now = new Date();
-          const diffMs = now.getTime() - date.getTime();
-          const diffMins = Math.floor(diffMs / (1000 * 60));
-          const diffHours = Math.floor(diffMs / (1000 * 60 * 60));
-          const diffDays = Math.floor(diffMs / (1000 * 60 * 60 * 24));
-
-          if (diffMins < 1) return "Just now";
-          if (diffMins < 60) return `${diffMins} minutes ago`;
-          if (diffHours < 24) return `${diffHours} hours ago`;
-          if (diffDays === 1) return "1 day ago";
-          if (diffDays < 7) return `${diffDays} days ago`;
-          return date.toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" });
+        const getRelativeTimeStr = (dateStr: string) => {
+          return getRelativeTime(dateStr, language);
         };
 
         const mapped: NotificationItem[] = transactions.map((t: any) => {
@@ -125,7 +111,7 @@ export default function Navbar({
             message: isIncome 
               ? `Income of ${amountFormatted} (${t.category}) recorded successfully.`
               : `Expense of ${amountFormatted} (${t.category}) recorded successfully.`,
-            time: getRelativeTime(t.date),
+            time: getRelativeTimeStr(t.date),
             read: readIds.includes(id)
           };
         });
