@@ -736,6 +736,7 @@ export default function Home() {
         onClose={() => setIsModalOpen(false)} 
         onAddSuccess={triggerRefresh} 
         language={language}
+        currency={currency}
       />
 
       {/* Floating Toast Notification */}

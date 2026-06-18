@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
-import { X, DollarSign, Calendar, Tag, AlertCircle } from "lucide-react";
+import { X, Calendar, Tag, AlertCircle } from "lucide-react";
 import CustomSelect from "./custom-select";
 import CustomDatePicker from "./custom-datepicker";
 import { t } from "@/lib/locales";
@@ -11,6 +11,7 @@ interface NewTransactionModalProps {
   onClose: () => void;
   onAddSuccess: () => void;
   language?: string;
+  currency?: string;
 }
 
 const generateReferenceCode = () => {
@@ -27,6 +28,7 @@ export default function NewTransactionModal({
   onClose,
   onAddSuccess,
   language = "EN",
+  currency = "USD",
 }: NewTransactionModalProps) {
   const [amount, setAmount] = useState("");
   const [type, setType] = useState<"income" | "expense">("expense");
@@ -188,8 +190,8 @@ export default function NewTransactionModal({
           <div className="flex flex-col gap-1.5">
             <label className="text-[10px] uppercase font-bold text-muted-foreground-custom tracking-wider">{t("Amount", language)}</label>
             <div className="relative">
-              <span className="absolute top-1/2 left-3.5 -translate-y-1/2 text-muted-foreground-custom">
-                <DollarSign size={14} />
+              <span className="absolute top-1/2 left-3.5 -translate-y-1/2 text-muted-foreground-custom text-xs font-bold">
+                {currency === "IDR" ? "Rp" : currency === "EUR" ? "€" : currency === "GBP" ? "£" : "$"}
               </span>
               <input
                 type="text"
@@ -202,7 +204,7 @@ export default function NewTransactionModal({
                     setAmount(val);
                   }
                 }}
-                placeholder="0.00"
+                placeholder={currency === "IDR" ? "0" : "0.00"}
                 className="h-10 w-full rounded-xl border border-border-custom bg-zinc-950/40 pl-9 pr-4 text-xs font-medium text-white placeholder-muted-foreground-custom outline-none focus:border-indigo-500 focus:bg-zinc-900/60"
               />
             </div>
