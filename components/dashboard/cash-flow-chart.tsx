@@ -34,7 +34,7 @@ const CustomTooltip = ({ active, payload, label, currency = "USD", language = "E
             <div key={index} className="flex items-center justify-between gap-6 text-xs">
               <span className="flex items-center gap-1.5 font-medium" style={{ color: entry.color }}>
                 <span className="w-1.5 h-1.5 rounded-full" style={{ backgroundColor: entry.color }} />
-                {entry.name}:
+                {t(entry.name, language)}:
               </span>
               <span className="font-bold text-white">
                 {formatCurrency(entry.value, currency)}
@@ -254,6 +254,7 @@ export default function CashFlowChart({ currency = "USD", language = "EN" }: { c
               height={36}
               iconSize={8}
               iconType="circle"
+              formatter={(value: string) => t(value, language)}
               wrapperStyle={{
                 fontSize: "11px",
                 color: "#94a3b8",
@@ -263,7 +264,7 @@ export default function CashFlowChart({ currency = "USD", language = "EN" }: { c
             <Area
               type="monotone"
               dataKey="income"
-              name="Income"
+              name={t("Income", language)}
               stroke="#10b981"
               strokeWidth={2}
               fillOpacity={1}
@@ -273,7 +274,7 @@ export default function CashFlowChart({ currency = "USD", language = "EN" }: { c
             <Area
               type="monotone"
               dataKey="expense"
-              name="Expense"
+              name={t("Expense", language)}
               stroke="#f43f5e"
               strokeWidth={2}
               fillOpacity={1}
