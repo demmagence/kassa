@@ -11,7 +11,7 @@ app = FastAPI(title="Kassa API")
 # Setup CORS
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["http://localhost:3000"],  # Next.js default port
+    allow_origins=["http://localhost:3000", "http://localhost:3001"],  # Next.js dev ports
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
