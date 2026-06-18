@@ -410,7 +410,10 @@ export default function Home() {
                         <label className="text-[10px] uppercase font-bold text-muted-foreground-custom tracking-wider">Base Currency</label>
                         <CustomSelect
                           value={formCurrency}
-                          onChange={setFormCurrency}
+                          onChange={(val) => {
+                            setFormCurrency(val);
+                            setCurrency(val);
+                          }}
                           options={[
                             { value: "USD", label: "USD ($) - US Dollar" },
                             { value: "EUR", label: "EUR (€) - Euro" },
@@ -424,7 +427,10 @@ export default function Home() {
                         <label className="text-[10px] uppercase font-bold text-muted-foreground-custom tracking-wider">Language Preference</label>
                         <CustomSelect
                           value={formLanguage}
-                          onChange={setFormLanguage}
+                          onChange={(val) => {
+                            setFormLanguage(val);
+                            setLanguage(val);
+                          }}
                           options={[
                             { value: "EN", label: "English" },
                             { value: "ID", label: "Bahasa Indonesia" },
