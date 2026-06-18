@@ -30,8 +30,26 @@ yarn-debug.log*
 yarn-error.log*
 .pnpm-debug.log*
 
-# env files (can opt-in for committing if needed)
-.env*
+# env files / secrets (keep the example template tracked)
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+*.p12
+*.pfx
+*.crt
+*.cert
+*.keystore
+secrets.json
+credentials.json
+service-account*.json
+*.local
+
+# editor / tooling local config
+.claude/settings.local.json
+.idea/
+.vscode/
 
 # vercel
 .vercel
