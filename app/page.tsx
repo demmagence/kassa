@@ -19,57 +19,35 @@ export default function Home() {
   const [refreshKey, setRefreshKey] = useState(0);
   const [searchQuery, setSearchQuery] = useState("");
 
-  // Configuration States (Source of Truth)
-  const [accountName, setAccountName] = useState("Administrator");
-  const [corporateEmail, setCorporateEmail] = useState("admin@kassa.io");
-  const [currency, setCurrency] = useState("USD");
-  const [language, setLanguage] = useState("EN");
+  // Configuration States (Source of Truth) — lazy initialized from localStorage
+  const getLs = (key: string, fallback: string) => {
+    if (typeof window === "undefined") return fallback;
+    try { return localStorage.getItem(key) || fallback; } catch { return fallback; }
+  };
 
-  // Form Edit States
-  const [formAccountName, setFormAccountName] = useState("Administrator");
-  const [formCorporateEmail, setFormCorporateEmail] = useState("admin@kassa.io");
-  const [formCurrency, setFormCurrency] = useState("USD");
-  const [formLanguage, setFormLanguage] = useState("EN");
+  const [accountName, setAccountName] = useState(() => getLs("kassa_account_name", "Administrator"));
+  const [corporateEmail, setCorporateEmail] = useState(() => getLs("kassa_corporate_email", "admin@kassa.io"));
+  const [currency, setCurrency] = useState(() => getLs("kassa_currency", "USD"));
+  const [language, setLanguage] = useState(() => getLs("kassa_language", "EN"));
+
+  // Form Edit States — also lazy init from localStorage so they match on mount
+  const [formAccountName, setFormAccountName] = useState(() => getLs("kassa_account_name", "Administrator"));
+  const [formCorporateEmail, setFormCorporateEmail] = useState(() => getLs("kassa_corporate_email", "admin@kassa.io"));
+  const [formCurrency, setFormCurrency] = useState(() => getLs("kassa_currency", "USD"));
+  const [formLanguage, setFormLanguage] = useState(() => getLs("kassa_language", "EN"));
 
 
   // Toast Notification States
   const [toast, setToast] = useState<{ type: "success" | "info" | null; message: string }>({ type: null, message: "" });
-  const [activeToast, setActiveToast] = useState<{ type: "success" | "info" | null; message: string }>({ type: null, message: "" });
 
   React.useEffect(() => {
     if (toast.type) {
-      setActiveToast(toast);
       const timer = setTimeout(() => {
         setToast({ type: null, message: "" });
       }, 4000);
       return () => clearTimeout(timer);
     }
   }, [toast]);
-
-  React.useEffect(() => {
-    const savedName = localStorage.getItem("kassa_account_name");
-    const savedEmail = localStorage.getItem("kassa_corporate_email");
-    const savedCurrency = localStorage.getItem("kassa_currency");
-    const savedLanguage = localStorage.getItem("kassa_language");
-
-    if (savedName) {
-      setAccountName(savedName);
-      setFormAccountName(savedName);
-    }
-    if (savedEmail) {
-      setCorporateEmail(savedEmail);
-      setFormCorporateEmail(savedEmail);
-    }
-    if (savedCurrency) {
-      setCurrency(savedCurrency);
-      setFormCurrency(savedCurrency);
-    }
-    if (savedLanguage) {
-      setLanguage(savedLanguage);
-      setFormLanguage(savedLanguage);
-    }
-  }, []);
-
   // symbol is no longer used directly; formatCurrency handles it
 
   const [stats, setStats] = useState<{
@@ -99,7 +77,7 @@ export default function Home() {
           totalExpenses: expenses,
           savingsRate: parseFloat(savingsRate.toFixed(1))
         });
-      } catch (err) {
+      } catch {
         // Default fallback mock values if offline
         setStats({
           netBalance: 289450,
@@ -128,76 +106,6 @@ export default function Home() {
   };
 
   const budgetStatus = getBudgetStatus();
-
-  const addNotification = (message: string, type: "success" | "info" | "warning") => {
-    const saved = localStorage.getItem("kassa_notifications");
-    let list = [];
-    if (saved) {
-      try {
-        list = JSON.parse(saved);
-      } catch (e) {
-        list = [
-          {
-            id: "1",
-            type: "warning",
-            message: "Warning: Based on current burn rate, cash runway is under 30 days.",
-            time: "2 hours ago",
-            read: false,
-          },
-          {
-            id: "2",
-            type: "info",
-            message: "Invoice INV-2026-004 to Client A is overdue by 5 days.",
-            time: "5 hours ago",
-            read: false,
-          },
-          {
-            id: "3",
-            type: "success",
-            message: "Successfully synchronized database with MongoDB Atlas.",
-            time: "1 day ago",
-            read: true,
-          }
-        ];
-      }
-    } else {
-      list = [
-        {
-          id: "1",
-          type: "warning",
-          message: "Warning: Based on current burn rate, cash runway is under 30 days.",
-          time: "2 hours ago",
-          read: false,
-        },
-        {
-          id: "2",
-          type: "info",
-          message: "Invoice INV-2026-004 to Client A is overdue by 5 days.",
-          time: "5 hours ago",
-          read: false,
-        },
-        {
-          id: "3",
-          type: "success",
-          message: "Successfully synchronized database with MongoDB Atlas.",
-          time: "1 day ago",
-          read: true,
-        }
-      ];
-    }
-
-    const newNotification = {
-      id: Date.now().toString(),
-      type,
-      message,
-      time: "Just now",
-      read: false
-    };
-
-    localStorage.setItem("kassa_notifications", JSON.stringify([newNotification, ...list]));
-    triggerRefresh();
-  };
-
   const handleSaveChanges = () => {
     setAccountName(formAccountName);
     setCorporateEmail(formCorporateEmail);
@@ -470,24 +378,24 @@ export default function Home() {
 
       {/* Floating Toast Notification */}
       <div 
-        className={`fixed top-6 right-6 z-[100] w-full max-w-sm transition-all duration-300 ease-out ${
+        className={`fixed top-6 right-6 z-100 w-full max-w-sm transition-all duration-300 ease-out ${
           toast.type 
             ? "opacity-100 translate-x-0 scale-100" 
             : "opacity-0 translate-x-8 scale-95 pointer-events-none"
         }`}
       >
         <div className={`flex items-center gap-3 p-4 rounded-xl backdrop-blur-xl border shadow-2xl text-xs font-semibold ${
-          activeToast.type === "success"
+          toast.type === "success"
             ? "bg-zinc-950/85 border-emerald-500/20 shadow-emerald-500/5 text-emerald-400"
             : "bg-zinc-950/85 border-indigo-500/20 shadow-indigo-500/5 text-indigo-400"
         }`}>
-          <div className={`flex-shrink-0 flex items-center justify-center w-8 h-8 rounded-lg ${
-            activeToast.type === "success" ? "bg-emerald-500/10 text-emerald-400" : "bg-indigo-500/10 text-indigo-400"
+          <div className={`shrink-0 flex items-center justify-center w-8 h-8 rounded-lg ${
+            toast.type === "success" ? "bg-emerald-500/10 text-emerald-400" : "bg-indigo-500/10 text-indigo-400"
           }`}>
-            {activeToast.type === "success" ? <CheckCircle2 size={18} /> : <Info size={18} />}
+            {toast.type === "success" ? <CheckCircle2 size={18} /> : <Info size={18} />}
           </div>
           <div className="flex-1 min-w-0">
-            <p className="text-zinc-200 font-medium text-xs">{activeToast.message}</p>
+            <p className="text-zinc-200 font-medium text-xs">{toast.message}</p>
           </div>
           <button
             type="button"
