@@ -67,6 +67,7 @@ interface StatCardProps {
   colorClass: "indigo" | "emerald" | "rose" | "cyan";
   sparklineData: number[];
   isLoading?: boolean;
+  language?: string;
 }
 
 function StatCard({
@@ -78,6 +79,7 @@ function StatCard({
   colorClass,
   sparklineData,
   isLoading = false,
+  language = "EN",
 }: StatCardProps) {
   const colors = {
     indigo: {
@@ -162,7 +164,7 @@ function StatCard({
               {change}%
             </span>
             <span className="text-[10px] text-muted-foreground-custom font-medium ml-1">
-              vs last month
+              {t("vs last month", language)}
             </span>
           </div>
         )}
@@ -270,6 +272,7 @@ export default function StatsGrid({ refreshKey, currency = "USD", language = "EN
         colorClass="indigo"
         sparklineData={[250, 260, 255, 270, 280, 275, 289]}
         isLoading={isLoading}
+        language={language}
       />
       <StatCard
         title={t("Total Income", language)}
@@ -280,6 +283,7 @@ export default function StatsGrid({ refreshKey, currency = "USD", language = "EN
         colorClass="emerald"
         sparklineData={[70, 75, 82, 80, 85, 90, 95]}
         isLoading={isLoading}
+        language={language}
       />
       <StatCard
         title={t("Total Expenses", language)}
@@ -290,6 +294,7 @@ export default function StatsGrid({ refreshKey, currency = "USD", language = "EN
         colorClass="rose"
         sparklineData={[50, 52, 51, 55, 54, 56, 58]}
         isLoading={isLoading}
+        language={language}
       />
       <StatCard
         title={t("Savings Rate", language)}
@@ -300,6 +305,7 @@ export default function StatsGrid({ refreshKey, currency = "USD", language = "EN
         colorClass="cyan"
         sparklineData={[34, 35, 36, 35.5, 37, 38, 38.9]}
         isLoading={isLoading}
+        language={language}
       />
     </div>
   );
