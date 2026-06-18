@@ -10,7 +10,7 @@ import NewTransactionModal from "@/components/dashboard/new-transaction-modal";
 import CustomSelect from "@/components/dashboard/custom-select";
 import { formatCurrency } from "@/lib/currency";
 import { t } from "@/lib/locales";
-import { Shield, Sliders, Sparkles, CheckCircle2, Info, X } from "lucide-react";
+import { Sliders, Sparkles, CheckCircle2, Info, X } from "lucide-react";
 
 
 export default function Home() {
@@ -416,60 +416,10 @@ export default function Home() {
                   </button>
                 </div>
               </div>
-
-              <hr className="border-border-custom" />
-
-              {/* Change Password */}
-              <div>
-                <div className="flex items-center gap-2 mb-4">
-                  <div className="p-1.5 rounded-lg bg-amber-500/10 text-amber-400">
-                    <Shield size={14} />
-                  </div>
-                  <h3 className="text-xs font-bold text-white">{t("Change Password", language)}</h3>
-                </div>
-
-                <div className="space-y-4">
-                  <div className="grid gap-4 sm:grid-cols-2">
-                    <div className="flex flex-col gap-1.5">
-                      <label className="text-[10px] uppercase font-bold text-muted-foreground-custom tracking-wider">{t("Current Password", language)}</label>
-                      <input
-                        type="password"
-                        placeholder="••••••••"
-                        className="h-10 rounded-xl border border-border-custom bg-zinc-950/40 px-3 text-xs font-medium text-white outline-none focus:border-indigo-500 focus:bg-zinc-900/60 placeholder:text-zinc-600"
-                      />
-                    </div>
-                    <div className="flex flex-col gap-1.5">
-                      <label className="text-[10px] uppercase font-bold text-muted-foreground-custom tracking-wider">{t("New Password", language)}</label>
-                      <input
-                        type="password"
-                        placeholder="••••••••"
-                        className="h-10 rounded-xl border border-border-custom bg-zinc-950/40 px-3 text-xs font-medium text-white outline-none focus:border-indigo-500 focus:bg-zinc-900/60 placeholder:text-zinc-600"
-                      />
-                    </div>
-                  </div>
-
-                  <div className="flex flex-col gap-1.5">
-                    <label className="text-[10px] uppercase font-bold text-muted-foreground-custom tracking-wider">{t("Confirm New Password", language)}</label>
-                    <input
-                      type="password"
-                      placeholder="••••••••"
-                      className="h-10 rounded-xl border border-border-custom bg-zinc-950/40 px-3 text-xs font-medium text-white outline-none focus:border-indigo-500 focus:bg-zinc-900/60 placeholder:text-zinc-600"
-                    />
-                  </div>
-
-                  <div className="flex justify-end">
-                    <button
-                      onClick={() => setToast({ type: "success", message: "Password updated successfully!" })}
-                      className="h-10 px-4 rounded-xl text-xs font-semibold bg-amber-600 text-white shadow-md shadow-amber-500/20 hover:bg-amber-500 transition-colors flex items-center justify-center"
-                    >
-                      {t("Update Password", language)}
-                    </button>
-                  </div>
-                </div>
-              </div>
             </div>
           </div>
         );
+
       default:
         return null;
     }
