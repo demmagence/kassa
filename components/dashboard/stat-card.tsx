@@ -1,7 +1,7 @@
-"use client";
-
 import React, { useState, useEffect } from "react";
 import { TrendingUp, TrendingDown, DollarSign, ArrowUpRight, ArrowDownRight, Percent } from "lucide-react";
+import { formatCurrency } from "@/lib/currency";
+import { t } from "@/lib/locales";
 
 interface SparklineProps {
   data: number[];
@@ -183,9 +183,10 @@ function StatCard({
 interface StatsGridProps {
   refreshKey?: number;
   currency?: string;
+  language?: string;
 }
 
-export default function StatsGrid({ refreshKey, currency = "USD" }: StatsGridProps) {
+export default function StatsGrid({ refreshKey, currency = "USD", language = "EN" }: StatsGridProps) {
   const [stats, setStats] = useState<{
     netBalance: number;
     totalIncome: number;
@@ -261,8 +262,8 @@ export default function StatsGrid({ refreshKey, currency = "USD" }: StatsGridPro
   return (
     <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
       <StatCard
-        title="Net Balance"
-        value={`${symbol}${displayStats.netBalance.toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`}
+        title={t("Net Balance", language)}
+        value={formatCurrency(displayStats.netBalance, currency)}
         change={12.8}
         trend={displayStats.netBalance >= 0 ? "up" : "down"}
         icon={getNetBalanceIcon(currency)}
@@ -271,8 +272,8 @@ export default function StatsGrid({ refreshKey, currency = "USD" }: StatsGridPro
         isLoading={isLoading}
       />
       <StatCard
-        title="Total Income"
-        value={`${symbol}${displayStats.totalIncome.toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`}
+        title={t("Total Income", language)}
+        value={formatCurrency(displayStats.totalIncome, currency)}
         change={18.2}
         trend="up"
         icon={<ArrowUpRight size={20} />}
@@ -281,8 +282,8 @@ export default function StatsGrid({ refreshKey, currency = "USD" }: StatsGridPro
         isLoading={isLoading}
       />
       <StatCard
-        title="Total Expenses"
-        value={`${symbol}${displayStats.totalExpenses.toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`}
+        title={t("Total Expenses", language)}
+        value={formatCurrency(displayStats.totalExpenses, currency)}
         change={9.4}
         trend="up"
         icon={<ArrowDownRight size={20} />}
@@ -291,8 +292,8 @@ export default function StatsGrid({ refreshKey, currency = "USD" }: StatsGridPro
         isLoading={isLoading}
       />
       <StatCard
-        title="Savings Rate"
-        value={`${displayStats.savingsRate}%`}
+        title={t("Savings Rate", language)}
+        value={`${displayStats.savingsRate.toFixed(1)}%`}
         change={4.1}
         trend="up"
         icon={<Percent size={20} />}
