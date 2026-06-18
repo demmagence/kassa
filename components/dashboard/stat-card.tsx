@@ -67,6 +67,7 @@ interface StatCardProps {
   colorClass: "indigo" | "emerald" | "rose" | "cyan";
   sparklineData: number[];
   isLoading?: boolean;
+  language?: string;
 }
 
 function StatCard({
@@ -78,6 +79,7 @@ function StatCard({
   colorClass,
   sparklineData,
   isLoading = false,
+  language = "EN",
 }: StatCardProps) {
   const colors = {
     indigo: {
@@ -162,7 +164,7 @@ function StatCard({
               {change}%
             </span>
             <span className="text-[10px] text-muted-foreground-custom font-medium ml-1">
-              vs last month
+              {t("vs last month", language)}
             </span>
           </div>
         )}
