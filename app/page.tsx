@@ -273,24 +273,24 @@ export default function Home() {
                       <div className="p-2 rounded-xl bg-indigo-500/10 text-indigo-400">
                         <Sparkles size={16} />
                       </div>
-                      <h3 className="text-sm font-bold text-white">Smart Insights</h3>
+                      <h3 className="text-sm font-bold text-white">{t("Smart Insights", language)}</h3>
                     </div>
                     {stats.totalIncome === 0 && stats.totalExpenses === 0 ? (
                       <>
                         <p className="text-xs text-zinc-300 leading-relaxed mb-4">
-                          No transactions recorded for the current billing cycle. Add new income or expenses to generate smart financial insights.
+                          {t("No transactions recorded for the current billing cycle. Add new income or expenses to generate smart financial insights.", language)}
                         </p>
                         <p className="text-xs text-zinc-300 leading-relaxed">
-                          Once data is logged, we will analyze your spending patterns, cash runway, and savings margin.
+                          {t("Once data is logged, we will analyze your spending patterns, cash runway, and savings margin.", language)}
                         </p>
                       </>
                     ) : (
                       <>
                         <p className="text-xs text-zinc-300 leading-relaxed mb-4">
-                          Your net balance is <strong className="text-emerald-400">{formatCurrency(stats.netBalance, currency)}</strong> this month. This is driven by <strong className="text-emerald-400">{formatCurrency(stats.totalIncome, currency)}</strong> in total revenue against <strong className="text-rose-400">{formatCurrency(stats.totalExpenses, currency)}</strong> in operational expenses.
+                          {t("Your net balance is", language)} <strong className="text-emerald-400">{formatCurrency(stats.netBalance, currency)}</strong> {t("this month. This is driven by", language)} <strong className="text-emerald-400">{formatCurrency(stats.totalIncome, currency)}</strong> {t("in total revenue against", language)} <strong className="text-rose-400">{formatCurrency(stats.totalExpenses, currency)}</strong> {t("in operational expenses.", language)}
                         </p>
                         <p className="text-xs text-zinc-300 leading-relaxed">
-                          Based on your current spending patterns, we project your next month expenses to be around <strong className="text-rose-400">{formatCurrency(stats.totalExpenses, currency)}</strong>, leaving an estimated savings rate of <strong className="text-cyan-400">{stats.savingsRate}%</strong>.
+                          {t("Based on your current spending patterns, we project your next month expenses to be around", language)} <strong className="text-rose-400">{formatCurrency(stats.totalExpenses, currency)}</strong>, {t("leaving an estimated savings rate of", language)} <strong className="text-cyan-400">{stats.savingsRate}%</strong>.
                         </p>
                       </>
                     )}
@@ -298,8 +298,8 @@ export default function Home() {
 
                   <div className="border-t border-border-custom pt-4 mt-4">
                     <div className="flex items-center justify-between text-xs">
-                      <span className="text-muted-foreground-custom font-medium">Monthly budget limit status:</span>
-                      <span className={`${budgetStatus.color} font-bold`}>{budgetStatus.label} ({budgetRemainingPercent.toFixed(0)}% Remaining)</span>
+                      <span className="text-muted-foreground-custom font-medium">{t("Monthly budget limit status:", language)}</span>
+                      <span className={`${budgetStatus.color} font-bold`}>{t(budgetStatus.label, language)} ({budgetRemainingPercent.toFixed(0)}% {t("Remaining", language)})</span>
                     </div>
                     <div className="w-full bg-zinc-950/40 rounded-full h-1.5 mt-2 overflow-hidden border border-border-custom/50">
                       <div className={`${budgetStatus.barColor} h-1.5 rounded-full`} style={{ width: `${budgetRemainingPercent}%` }} />
