@@ -11,27 +11,30 @@ import {
   X,
   User,
 } from "lucide-react";
+import { t } from "@/lib/locales";
 
 interface SidebarProps {
   activeTab: string;
   setActiveTab: (tab: string) => void;
   accountName?: string;
   corporateEmail?: string;
+  language?: string;
 }
 
 export default function Sidebar({ 
   activeTab, 
   setActiveTab,
   accountName = "Administrator",
-  corporateEmail = "admin@kassa.io"
+  corporateEmail = "admin@kassa.io",
+  language = "EN"
 }: SidebarProps) {
   const [isOpen, setIsOpen] = useState(false);
 
   const navItems = [
-    { id: "dashboard", label: "Dashboard", icon: LayoutDashboard },
-    { id: "transactions", label: "Transactions", icon: Receipt },
-    { id: "analytics", label: "Analytics", icon: TrendingUp },
-    { id: "settings", label: "Settings", icon: Settings },
+    { id: "dashboard", label: t("Dashboard", language), icon: LayoutDashboard },
+    { id: "transactions", label: t("Transactions", language), icon: Receipt },
+    { id: "analytics", label: t("Analytics", language), icon: TrendingUp },
+    { id: "settings", label: t("Settings", language), icon: Settings },
   ];
 
   return (
@@ -58,7 +61,7 @@ export default function Sidebar({
           </div>
           <div>
             <span className="font-bold text-xl tracking-tight text-white">Kassa</span>
-            <span className="block text-xs font-semibold text-indigo-400">Finance Suite</span>
+            <span className="block text-xs font-semibold text-indigo-400">{t("Finance Suite", language)}</span>
           </div>
         </div>
 

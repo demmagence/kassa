@@ -4,11 +4,13 @@ import React, { useState, useEffect } from "react";
 import { X, DollarSign, Calendar, Tag, AlertCircle } from "lucide-react";
 import CustomSelect from "./custom-select";
 import CustomDatePicker from "./custom-datepicker";
+import { t } from "@/lib/locales";
 
 interface NewTransactionModalProps {
   isOpen: boolean;
   onClose: () => void;
   onAddSuccess: () => void;
+  language?: string;
 }
 
 const generateReferenceCode = () => {
@@ -24,6 +26,7 @@ export default function NewTransactionModal({
   isOpen,
   onClose,
   onAddSuccess,
+  language = "EN",
 }: NewTransactionModalProps) {
   const [amount, setAmount] = useState("");
   const [type, setType] = useState<"income" | "expense">("expense");
@@ -151,8 +154,8 @@ export default function NewTransactionModal({
           <X size={16} />
         </button>
 
-        <h2 className="text-lg font-bold text-white mb-1">Add New Transaction</h2>
-        <p className="text-xs text-muted-foreground-custom mb-6">Create a real-time ledger entry.</p>
+        <h2 className="text-lg font-bold text-white mb-1">{t("Add New Transaction", language)}</h2>
+        <p className="text-xs text-muted-foreground-custom mb-6">{t("Create a real-time ledger entry.", language)}</p>
 
         <form onSubmit={handleSubmit} className="space-y-4">
           {/* Tipe Transaksi */}
@@ -166,7 +169,7 @@ export default function NewTransactionModal({
                   : "border-border-custom text-muted-foreground-custom hover:text-white"
               }`}
             >
-              Expense (Pengeluaran)
+                            {t("Expense (Pengeluaran)", language)}
             </button>
             <button
               type="button"
@@ -177,13 +180,13 @@ export default function NewTransactionModal({
                   : "border-border-custom text-muted-foreground-custom hover:text-white"
               }`}
             >
-              Income (Pemasukan)
+                            {t("Income (Pemasukan)", language)}
             </button>
           </div>
 
           {/* Amount */}
           <div className="flex flex-col gap-1.5">
-            <label className="text-[10px] uppercase font-bold text-muted-foreground-custom tracking-wider">Amount</label>
+            <label className="text-[10px] uppercase font-bold text-muted-foreground-custom tracking-wider">{t("Amount", language)}</label>
             <div className="relative">
               <span className="absolute top-1/2 left-3.5 -translate-y-1/2 text-muted-foreground-custom">
                 <DollarSign size={14} />
@@ -208,7 +211,7 @@ export default function NewTransactionModal({
           {/* Category & Date */}
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div className="flex flex-col gap-1.5">
-              <label className="text-[10px] uppercase font-bold text-muted-foreground-custom tracking-wider">Category</label>
+              <label className="text-[10px] uppercase font-bold text-muted-foreground-custom tracking-wider">{t("Category", language)}</label>
               <CustomSelect
                 value={category}
                 onChange={setCategory}
@@ -217,7 +220,7 @@ export default function NewTransactionModal({
               />
             </div>
             <div className="flex flex-col gap-1.5">
-              <label className="text-[10px] uppercase font-bold text-muted-foreground-custom tracking-wider">Date</label>
+              <label className="text-[10px] uppercase font-bold text-muted-foreground-custom tracking-wider">{t("Date", language)}</label>
                <CustomDatePicker
                  value={date}
                  onChange={setDate}
@@ -228,13 +231,13 @@ export default function NewTransactionModal({
 
           {/* Description */}
           <div className="flex flex-col gap-1.5">
-            <label className="text-[10px] uppercase font-bold text-muted-foreground-custom tracking-wider">Description</label>
+            <label className="text-[10px] uppercase font-bold text-muted-foreground-custom tracking-wider">{t("Description", language)}</label>
             <input
               type="text"
               required
               value={description}
               onChange={(e) => setDescription(e.target.value)}
-              placeholder="e.g. Cloud Server Hosting"
+                            placeholder={t("e.g. Cloud Server Hosting", language)}
               className="h-10 w-full rounded-xl border border-border-custom bg-zinc-950/40 px-3 text-xs font-medium text-white placeholder-muted-foreground-custom outline-none focus:border-indigo-500 focus:bg-zinc-900/60"
             />
           </div>
@@ -249,14 +252,14 @@ export default function NewTransactionModal({
               disabled={loading}
               className="h-10 px-4 rounded-xl text-xs font-semibold border border-border-custom text-zinc-300 hover:text-white hover:bg-zinc-900/40 transition-colors flex items-center justify-center"
             >
-              Cancel
+                            {t("Cancel", language)}
             </button>
             <button
               type="submit"
               disabled={loading}
               className="h-10 w-36 rounded-xl text-xs font-semibold bg-indigo-600 text-white shadow-md shadow-indigo-500/20 hover:bg-indigo-500 transition-colors glow-primary disabled:opacity-50 flex items-center justify-center"
             >
-              {loading ? "Saving..." : "Add Transaction"}
+                            {loading ? t("Saving...", language) : t("Add Transaction", language)}
             </button>
           </div>
         </form>

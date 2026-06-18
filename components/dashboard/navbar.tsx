@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect, useRef } from "react";
 import { Bell, Calendar, Plus, AlertTriangle, Info, CheckCircle2, Search } from "lucide-react";
+import { t, getRelativeTime } from "@/lib/locales";
 
 interface NavbarProps {
   activeTab: string;
@@ -9,6 +10,8 @@ interface NavbarProps {
   searchQuery: string;
   setSearchQuery: (query: string) => void;
   refreshKey?: number;
+  language?: string;
+  currency?: string;
 }
 
 interface NotificationItem {
@@ -48,7 +51,9 @@ export default function Navbar({
   onNewTransactionClick, 
   searchQuery, 
   setSearchQuery,
-  refreshKey
+  refreshKey,
+  language = "EN",
+  currency = "USD"
 }: NavbarProps) {
   const [currentDate] = useState(() => {
     return new Date().toLocaleDateString("en-US", {
@@ -169,15 +174,15 @@ export default function Navbar({
   const getTitle = () => {
     switch (activeTab) {
       case "dashboard":
-        return "Dashboard Overview";
+        return t("Dashboard Overview", language);
       case "transactions":
-        return "Transaction Log";
+        return t("Transaction Log", language);
       case "analytics":
-        return "Cash Flow Analytics";
+        return t("Cash Flow Analytics", language);
       case "settings":
-        return "System Settings";
+        return t("System Settings", language);
       default:
-        return "Financial Dashboard";
+        return t("Financial Dashboard", language);
     }
   };
 
@@ -189,7 +194,7 @@ export default function Navbar({
           {getTitle()}
         </h1>
         <p className="hidden text-xs font-medium text-muted-foreground-custom mt-1 md:block">
-          Manage, analyze and track your real-time revenue operations.
+          {t("Manage, analyze and track your real-time revenue operations.", language)}
         </p>
       </div>
 
@@ -203,7 +208,7 @@ export default function Navbar({
             />
             <input
               type="text"
-              placeholder="Search transactions..."
+              placeholder={t("Search transactions...", language)}
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               className="h-10 w-64 rounded-xl border border-border-custom bg-zinc-950/40 pl-9 pr-4 text-xs font-medium text-white placeholder-muted-foreground-custom outline-none transition-all duration-200 focus:border-indigo-500 focus:bg-zinc-900/60"
@@ -235,16 +240,16 @@ export default function Navbar({
             {showNotifications && (
               <div className="absolute right-0 mt-3 w-80 rounded-2xl border border-border-custom bg-zinc-950/95 p-4 shadow-xl backdrop-blur-md z-50 animate-in fade-in slide-in-from-top-2 duration-200">
                 <div className="flex items-center justify-between border-b border-border-custom pb-2 mb-3">
-                  <span className="text-xs font-bold text-white">Notifications</span>
+                  <span className="text-xs font-bold text-white">{t("Notifications", language)}</span>
                   {unreadCount > 0 && (
                     <span className="text-[10px] bg-indigo-500/10 text-indigo-400 px-2 py-0.5 rounded-full font-bold">
-                      {unreadCount} new
+                      {unreadCount} {t("new", language)}
                     </span>
                   )}
                 </div>
                 <div className="space-y-2 max-h-64 overflow-y-auto pr-1">
                   {notifications.length === 0 ? (
-                    <p className="text-center text-xs text-muted-foreground-custom py-4">No notifications</p>
+                    <p className="text-center text-xs text-muted-foreground-custom py-4">{t("No notifications", language)}</p>
                   ) : (
                     notifications.map((n) => (
                       <div
@@ -282,7 +287,7 @@ export default function Navbar({
             className="flex h-10 items-center gap-1.5 rounded-xl bg-indigo-600 px-4 text-xs font-semibold text-white shadow-md shadow-indigo-500/20 transition-all hover:bg-indigo-500 glow-primary"
           >
             <Plus size={14} />
-            <span className="hidden sm:inline">New Transaction</span>
+            <span className="hidden sm:inline">{t("New Transaction", language)}</span>
           </button>
         )}
       </div>
