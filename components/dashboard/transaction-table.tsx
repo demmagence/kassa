@@ -3,12 +3,15 @@
 import React, { useState, useEffect } from "react";
 import { mockTransactions, Transaction } from "@/data/mock-data";
 import { ArrowUpRight, ArrowDownRight, Search, CheckCircle2, AlertCircle, Clock } from "lucide-react";
+import { formatCurrency } from "@/lib/currency";
+import { t } from "@/lib/locales";
 
 interface TransactionTableProps {
   searchQuery?: string;
   setSearchQuery?: (query: string) => void;
   refreshKey?: number;
   currency?: string;
+  language?: string;
 }
 
 const formatTransactionId = (t: any) => {
@@ -28,7 +31,8 @@ export default function TransactionTable({
   searchQuery: propSearchQuery, 
   setSearchQuery: propSetSearchQuery,
   refreshKey,
-  currency = "USD"
+  currency = "USD",
+  language = "EN"
 }: TransactionTableProps) {
   const [filterType, setFilterType] = useState<"all" | "income" | "expense">("all");
   const [localSearchQuery, setLocalSearchQuery] = useState("");
@@ -37,18 +41,7 @@ export default function TransactionTable({
   const searchQuery = propSearchQuery !== undefined ? propSearchQuery : localSearchQuery;
   const setSearchQuery = propSetSearchQuery !== undefined ? propSetSearchQuery : setLocalSearchQuery;
 
-  const getCurrencySymbol = (cur: string) => {
-    switch (cur) {
-      case "EUR": return "€";
-      case "IDR": return "Rp";
-      case "GBP": return "£";
-      case "USD":
-      default:
-        return "$";
-    }
-  };
-
-  const symbol = getCurrencySymbol(currency);
+  // symbol removed; formatCurrency handles it
 
   useEffect(() => {
     async function fetchTransactions() {
@@ -89,21 +82,21 @@ export default function TransactionTable({
         return (
           <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-bold bg-emerald-500/10 text-emerald-400 border border-emerald-500/10">
             <CheckCircle2 size={12} />
-            Completed
+            {t("Completed", language)}
           </span>
         );
       case "pending":
         return (
           <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-bold bg-warning-custom/10 text-warning-custom border border-warning-custom/10">
             <Clock size={12} />
-            Pending
+            {t("Pending", language)}
           </span>
         );
       case "failed":
         return (
           <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-bold bg-danger-custom/10 text-danger-custom border border-danger-custom/10">
             <AlertCircle size={12} />
-            Failed
+            {t("Failed", language)}
           </span>
         );
     }
@@ -115,10 +108,10 @@ export default function TransactionTable({
       <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between mb-6">
         <div>
           <h2 className="text-base font-bold text-white leading-none">
-            Recent Transactions
+            {t("Recent Transactions", language)}
           </h2>
           <span className="text-xs text-muted-foreground-custom font-medium mt-1 block">
-            Monitor and audit all cash flow operations
+            {t("Monitor and audit all cash flow operations", language)}
           </span>
         </div>
 
@@ -136,7 +129,7 @@ export default function TransactionTable({
                     : "text-muted-foreground-custom hover:text-white"
                 }`}
               >
-                {type}
+                {t(type, language)}
               </button>
             ))}
           </div>
@@ -148,11 +141,11 @@ export default function TransactionTable({
         <table className="w-full text-left border-collapse min-w-[700px] table-fixed">
           <thead>
             <tr className="border-b border-border-custom text-xs font-bold uppercase tracking-wider text-muted-foreground-custom">
-              <th className="pb-3 pl-2 w-[35%]">Transaction</th>
-              <th className="pb-3 w-[20%]">Category</th>
-              <th className="pb-3 w-[15%]">Date</th>
-              <th className="pb-3 w-[15%]">Amount</th>
-              <th className="pb-3 pr-2 w-[15%]">Status</th>
+              <th className="pb-3 pl-2 w-[35%]">{t("Transaction", language)}</th>
+              <th className="pb-3 w-[20%]">{t("Category", language)}</th>
+              <th className="pb-3 w-[15%]">{t("Date", language)}</th>
+              <th className="pb-3 w-[15%]">{t("Amount", language)}</th>
+              <th className="pb-3 pr-2 w-[15%]">{t("Status", language)}</th>
             </tr>
           </thead>
           <tbody className="divide-y divide-border-custom/40">
@@ -183,7 +176,7 @@ export default function TransactionTable({
                           {tx.description}
                         </p>
                         <p className="text-[10px] text-muted-foreground-custom font-medium truncate">
-                          ID: {tx.id}
+                          {t("ID:", language)} {tx.id}
                         </p>
                       </div>
                     </div>
@@ -209,7 +202,7 @@ export default function TransactionTable({
                         : "text-rose-400"
                     }`}
                   >
-                    {tx.type === "income" ? "+" : "-"}{symbol}{tx.amount.toFixed(2)}
+                    {tx.type === "income" ? "+" : "-"}{formatCurrency(tx.amount, currency)}
                   </td>
 
                   {/* Status */}

@@ -8,6 +8,8 @@ import CashFlowChart from "@/components/dashboard/cash-flow-chart";
 import TransactionTable from "@/components/dashboard/transaction-table";
 import NewTransactionModal from "@/components/dashboard/new-transaction-modal";
 import CustomSelect from "@/components/dashboard/custom-select";
+import { formatCurrency } from "@/lib/currency";
+import { t } from "@/lib/locales";
 import { Settings, Shield, Sliders, Database, Sparkles, CheckCircle2, Info, X } from "lucide-react";
 
 
@@ -70,18 +72,7 @@ export default function Home() {
     }
   }, []);
 
-  const getCurrencySymbol = (cur: string) => {
-    switch (cur) {
-      case "EUR": return "€";
-      case "IDR": return "Rp";
-      case "GBP": return "£";
-      case "USD":
-      default:
-        return "$";
-    }
-  };
-
-  const symbol = getCurrencySymbol(currency);
+  // symbol is no longer used directly; formatCurrency handles it
 
   const [stats, setStats] = useState<{
     netBalance: number;
@@ -240,12 +231,12 @@ export default function Home() {
         return (
           <div key="dashboard-tab" className="space-y-6">
             {/* Stat Cards */}
-            <StatsGrid refreshKey={refreshKey} currency={currency} />
+            <StatsGrid refreshKey={refreshKey} currency={currency} language={language} />
 
             {/* Grid Layout for Charts & Lists */}
             <div className="grid gap-6 lg:grid-cols-3">
               <div className="lg:col-span-2">
-                <CashFlowChart />
+                <CashFlowChart currency={currency} language={language} />
               </div>
               
               {isStatsLoading || !stats ? (
@@ -296,10 +287,10 @@ export default function Home() {
                     ) : (
                       <>
                         <p className="text-xs text-zinc-300 leading-relaxed mb-4">
-                          Your net balance is <strong className="text-emerald-400">{symbol}{stats.netBalance.toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</strong> this month. This is driven by <strong className="text-emerald-400">{symbol}{stats.totalIncome.toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</strong> in total revenue against <strong className="text-rose-400">{symbol}{stats.totalExpenses.toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</strong> in operational expenses.
+                          Your net balance is <strong className="text-emerald-400">{formatCurrency(stats.netBalance, currency)}</strong> this month. This is driven by <strong className="text-emerald-400">{formatCurrency(stats.totalIncome, currency)}</strong> in total revenue against <strong className="text-rose-400">{formatCurrency(stats.totalExpenses, currency)}</strong> in operational expenses.
                         </p>
                         <p className="text-xs text-zinc-300 leading-relaxed">
-                          Based on your current spending patterns, we project your next month expenses to be around <strong className="text-rose-400">{symbol}{stats.totalExpenses.toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</strong>, leaving an estimated savings rate of <strong className="text-cyan-400">{stats.savingsRate}%</strong>.
+                          Based on your current spending patterns, we project your next month expenses to be around <strong className="text-rose-400">{formatCurrency(stats.totalExpenses, currency)}</strong>, leaving an estimated savings rate of <strong className="text-cyan-400">{stats.savingsRate}%</strong>.
                         </p>
                       </>
                     )}
@@ -319,16 +310,16 @@ export default function Home() {
             </div>
 
             {/* Transaction Log */}
-            <TransactionTable refreshKey={refreshKey} searchQuery={searchQuery} setSearchQuery={setSearchQuery} currency={currency} />
+            <TransactionTable refreshKey={refreshKey} searchQuery={searchQuery} setSearchQuery={setSearchQuery} currency={currency} language={language} />
           </div>
         );
       case "transactions":
-        return <TransactionTable refreshKey={refreshKey} searchQuery={searchQuery} setSearchQuery={setSearchQuery} currency={currency} />;
+        return <TransactionTable refreshKey={refreshKey} searchQuery={searchQuery} setSearchQuery={setSearchQuery} currency={currency} language={language} />;
       case "analytics":
         return (
           <div key="analytics-tab" className="space-y-6">
-            <StatsGrid refreshKey={refreshKey} currency={currency} />
-            <CashFlowChart />
+            <StatsGrid refreshKey={refreshKey} currency={currency} language={language} />
+            <CashFlowChart currency={currency} language={language} />
           </div>
         );
       case "settings":
@@ -345,7 +336,7 @@ export default function Home() {
                 }`}
               >
                 <Sliders size={16} />
-                General Configuration
+                {t("General Configuration", language)}
               </button>
               <button
                 onClick={() => setActiveSettingsTab("security")}
@@ -356,7 +347,7 @@ export default function Home() {
                 }`}
               >
                 <Shield size={16} />
-                Security & Access
+                {t("Security & Access", language)}
               </button>
               <button
                 onClick={() => setActiveSettingsTab("database")}
@@ -367,7 +358,7 @@ export default function Home() {
                 }`}
               >
                 <Database size={16} />
-                Database & Sync
+                {t("Database & Sync", language)}
               </button>
             </div>
 
@@ -377,8 +368,8 @@ export default function Home() {
               {activeSettingsTab === "general" && (
                 <>
                   <div>
-                    <h2 className="text-base font-bold text-white leading-none">Settings Panel</h2>
-                    <p className="text-xs text-muted-foreground-custom mt-1">Configure your personal and corporate preferences.</p>
+                    <h2 className="text-base font-bold text-white leading-none">{t("Settings Panel", language)}</h2>
+                    <p className="text-xs text-muted-foreground-custom mt-1">{t("Configure your personal and corporate preferences.", language)}</p>
                   </div>
 
                   <hr className="border-border-custom" />
@@ -386,7 +377,7 @@ export default function Home() {
                   <div className="space-y-4">
                     <div className="grid gap-4 sm:grid-cols-2">
                       <div className="flex flex-col gap-1.5">
-                        <label className="text-[10px] uppercase font-bold text-muted-foreground-custom tracking-wider">Account Name</label>
+                        <label className="text-[10px] uppercase font-bold text-muted-foreground-custom tracking-wider">{t("Account Name", language)}</label>
                         <input
                           type="text"
                           value={formAccountName}
@@ -395,7 +386,7 @@ export default function Home() {
                         />
                       </div>
                       <div className="flex flex-col gap-1.5">
-                        <label className="text-[10px] uppercase font-bold text-muted-foreground-custom tracking-wider">Corporate Email</label>
+                        <label className="text-[10px] uppercase font-bold text-muted-foreground-custom tracking-wider">{t("Corporate Email", language)}</label>
                         <input
                           type="email"
                           value={formCorporateEmail}
@@ -407,7 +398,7 @@ export default function Home() {
 
                     <div className="grid gap-4 sm:grid-cols-2">
                       <div className="flex flex-col gap-1.5">
-                        <label className="text-[10px] uppercase font-bold text-muted-foreground-custom tracking-wider">Base Currency</label>
+                        <label className="text-[10px] uppercase font-bold text-muted-foreground-custom tracking-wider">{t("Base Currency", language)}</label>
                         <CustomSelect
                           value={formCurrency}
                           onChange={(val) => {
@@ -424,7 +415,7 @@ export default function Home() {
                         />
                       </div>
                       <div className="flex flex-col gap-1.5">
-                        <label className="text-[10px] uppercase font-bold text-muted-foreground-custom tracking-wider">Language Preference</label>
+                        <label className="text-[10px] uppercase font-bold text-muted-foreground-custom tracking-wider">{t("Language Preference", language)}</label>
                         <CustomSelect
                           value={formLanguage}
                           onChange={(val) => {
@@ -448,13 +439,13 @@ export default function Home() {
                       onClick={handleCancelChanges}
                       className="h-10 px-4 rounded-xl text-xs font-semibold border border-border-custom text-zinc-300 hover:text-white hover:bg-zinc-900/40 transition-colors flex items-center justify-center"
                     >
-                      Cancel Changes
+                      {t("Cancel Changes", language)}
                     </button>
                     <button 
                       onClick={handleSaveChanges}
                       className="h-10 px-4 rounded-xl text-xs font-semibold bg-indigo-600 text-white shadow-md shadow-indigo-500/20 hover:bg-indigo-500 transition-colors glow-primary flex items-center justify-center"
                     >
-                      Save Changes
+                      {t("Save Changes", language)}
                     </button>
                   </div>
                 </>
@@ -717,6 +708,7 @@ export default function Home() {
         setActiveTab={setActiveTab} 
         accountName={accountName}
         corporateEmail={corporateEmail}
+        language={language}
       />
 
       {/* Main Content Area */}
@@ -728,6 +720,8 @@ export default function Home() {
           searchQuery={searchQuery}
           setSearchQuery={setSearchQuery}
           refreshKey={refreshKey}
+          language={language}
+          currency={currency}
         />
 
         {/* Dashboard Dynamic Content Container */}
@@ -741,6 +735,7 @@ export default function Home() {
         isOpen={isModalOpen} 
         onClose={() => setIsModalOpen(false)} 
         onAddSuccess={triggerRefresh} 
+        language={language}
       />
 
       {/* Floating Toast Notification */}

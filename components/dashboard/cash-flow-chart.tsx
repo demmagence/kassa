@@ -13,14 +13,18 @@ import {
 } from "recharts";
 import { mockMonthlyCashFlow, mockWeeklyCashFlow } from "@/data/mock-data";
 import { BarChart2, TrendingUp } from "lucide-react";
+import { formatCurrency, formatYAxisValue, getCurrencySymbol } from "@/lib/currency";
+import { t } from "@/lib/locales";
 
 interface CustomTooltipProps {
   active?: boolean;
   payload?: any[];
   label?: string;
+  currency?: string;
+  language?: string;
 }
 
-const CustomTooltip = ({ active, payload, label }: CustomTooltipProps) => {
+const CustomTooltip = ({ active, payload, label, currency = "USD", language = "EN" }: CustomTooltipProps) => {
   if (active && payload && payload.length) {
     return (
       <div className="glass-card px-4 py-3 rounded-xl border border-white/10 shadow-xl">
@@ -33,18 +37,18 @@ const CustomTooltip = ({ active, payload, label }: CustomTooltipProps) => {
                 {entry.name}:
               </span>
               <span className="font-bold text-white">
-                ${entry.value.toLocaleString()}
+                {formatCurrency(entry.value, currency)}
               </span>
             </div>
           ))}
           <div className="border-t border-white/5 pt-1 mt-1 flex items-center justify-between text-xs">
-            <span className="text-zinc-400">Net Flow:</span>
+            <span className="text-zinc-400">{t("Net Flow:", language)}</span>
             <span
               className={`font-bold ${
                 payload[0].payload.net >= 0 ? "text-emerald-400" : "text-rose-400"
               }`}
             >
-              ${payload[0].payload.net.toLocaleString()}
+              {formatCurrency(payload[0].payload.net, currency)}
             </span>
           </div>
         </div>
@@ -54,7 +58,7 @@ const CustomTooltip = ({ active, payload, label }: CustomTooltipProps) => {
   return null;
 };
 
-export default function CashFlowChart() {
+export default function CashFlowChart({ currency = "USD", language = "EN" }: { currency?: string; language?: string }) {
   const [viewMode, setViewMode] = useState<"monthly" | "weekly">("monthly");
   const [mounted, setMounted] = useState(false);
   const [chartData, setChartData] = useState<{
@@ -154,9 +158,8 @@ export default function CashFlowChart() {
 
   const data = chartData ? chartData[viewMode] : [];
 
-  const formatYAxis = (tick: number) => {
-    if (tick >= 1000) return `$${(tick / 1000).toFixed(0)}K`;
-    return `$${tick}`;
+  const formatYAxisTick = (tick: number) => {
+    return formatYAxisValue(tick, currency);
   };
 
   if (isLoading || !mounted) {
@@ -178,10 +181,10 @@ export default function CashFlowChart() {
           </div>
           <div>
             <h2 className="text-base font-bold text-white leading-none">
-              Cash Flow Trend
+              {t("Cash Flow Trend", language)}
             </h2>
             <span className="text-xs text-muted-foreground-custom font-medium mt-1 block">
-              Income vs. Expense visualization over time
+              {t("Income vs. Expense visualization over time", language)}
             </span>
           </div>
         </div>
@@ -196,7 +199,7 @@ export default function CashFlowChart() {
                 : "text-muted-foreground-custom hover:text-white"
             }`}
           >
-            Monthly
+            {t("Monthly", language)}
           </button>
           <button
             onClick={() => setViewMode("weekly")}
@@ -206,7 +209,7 @@ export default function CashFlowChart() {
                 : "text-muted-foreground-custom hover:text-white"
             }`}
           >
-            Weekly
+            {t("Weekly", language)}
           </button>
         </div>
       </div>
@@ -243,9 +246,9 @@ export default function CashFlowChart() {
               fontSize={10}
               tickLine={false}
               axisLine={false}
-              tickFormatter={formatYAxis}
+              tickFormatter={formatYAxisTick}
             />
-            <Tooltip content={<CustomTooltip />} cursor={{ stroke: "rgba(255, 255, 255, 0.05)" }} />
+            <Tooltip content={<CustomTooltip currency={currency} />} cursor={{ stroke: "rgba(255, 255, 255, 0.05)" }} />
             <Legend
               verticalAlign="top"
               height={36}
