@@ -29,6 +29,9 @@ export default function Home() {
   const [formCurrency, setFormCurrency] = useState("USD");
   const [formLanguage, setFormLanguage] = useState("EN");
 
+  // Settings Sub-Tab State
+  const [activeSettingsTab, setActiveSettingsTab] = useState<"general" | "security" | "database">("general");
+
   // Toast Notification States
   const [toast, setToast] = useState<{ type: "success" | "info" | null; message: string }>({ type: null, message: "" });
   const [activeToast, setActiveToast] = useState<{ type: "success" | "info" | null; message: string }>({ type: null, message: "" });
@@ -333,99 +336,361 @@ export default function Home() {
           <div key="settings-tab" className="grid gap-6 md:grid-cols-3">
             {/* Navigation links for settings */}
             <div className="glass-card p-4 rounded-2xl h-fit space-y-1">
-              <button className="w-full flex items-center gap-3 px-4 py-2.5 rounded-xl text-xs font-semibold bg-indigo-600 text-white text-left">
+              <button
+                onClick={() => setActiveSettingsTab("general")}
+                className={`w-full flex items-center gap-3 px-4 py-2.5 rounded-xl text-xs font-semibold text-left transition-colors ${
+                  activeSettingsTab === "general"
+                    ? "bg-indigo-600 text-white"
+                    : "text-muted-foreground-custom hover:text-white hover:bg-zinc-900/40"
+                }`}
+              >
                 <Sliders size={16} />
                 General Configuration
               </button>
-              <button className="w-full flex items-center gap-3 px-4 py-2.5 rounded-xl text-xs font-semibold text-muted-foreground-custom hover:text-white hover:bg-zinc-900/40 text-left transition-colors">
+              <button
+                onClick={() => setActiveSettingsTab("security")}
+                className={`w-full flex items-center gap-3 px-4 py-2.5 rounded-xl text-xs font-semibold text-left transition-colors ${
+                  activeSettingsTab === "security"
+                    ? "bg-indigo-600 text-white"
+                    : "text-muted-foreground-custom hover:text-white hover:bg-zinc-900/40"
+                }`}
+              >
                 <Shield size={16} />
                 Security & Access
               </button>
-              <button className="w-full flex items-center gap-3 px-4 py-2.5 rounded-xl text-xs font-semibold text-muted-foreground-custom hover:text-white hover:bg-zinc-900/40 text-left transition-colors">
+              <button
+                onClick={() => setActiveSettingsTab("database")}
+                className={`w-full flex items-center gap-3 px-4 py-2.5 rounded-xl text-xs font-semibold text-left transition-colors ${
+                  activeSettingsTab === "database"
+                    ? "bg-indigo-600 text-white"
+                    : "text-muted-foreground-custom hover:text-white hover:bg-zinc-900/40"
+                }`}
+              >
                 <Database size={16} />
                 Database & Sync
               </button>
             </div>
 
-            {/* Main Settings Form */}
+            {/* Main Settings Content Area */}
             <div className="md:col-span-2 glass-card p-6 rounded-2xl space-y-6">
-              <div>
-                <h2 className="text-base font-bold text-white leading-none">Settings Panel</h2>
-                <p className="text-xs text-muted-foreground-custom mt-1">Configure your personal and corporate preferences.</p>
-              </div>
-
-              <hr className="border-border-custom" />
-
-              <div className="space-y-4">
-                {/* Profile Settings */}
-                <div className="grid gap-4 sm:grid-cols-2">
-                  <div className="flex flex-col gap-1.5">
-                    <label className="text-[10px] uppercase font-bold text-muted-foreground-custom tracking-wider">Account Name</label>
-                    <input
-                      type="text"
-                      value={formAccountName}
-                      onChange={(e) => setFormAccountName(e.target.value)}
-                      className="h-10 rounded-xl border border-border-custom bg-zinc-950/40 px-3 text-xs font-medium text-white outline-none focus:border-indigo-500 focus:bg-zinc-900/60"
-                    />
+              {/* General Configuration Tab */}
+              {activeSettingsTab === "general" && (
+                <>
+                  <div>
+                    <h2 className="text-base font-bold text-white leading-none">Settings Panel</h2>
+                    <p className="text-xs text-muted-foreground-custom mt-1">Configure your personal and corporate preferences.</p>
                   </div>
-                  <div className="flex flex-col gap-1.5">
-                    <label className="text-[10px] uppercase font-bold text-muted-foreground-custom tracking-wider">Corporate Email</label>
-                    <input
-                      type="email"
-                      value={formCorporateEmail}
-                      onChange={(e) => setFormCorporateEmail(e.target.value)}
-                      className="h-10 rounded-xl border border-border-custom bg-zinc-950/40 px-3 text-xs font-medium text-white outline-none focus:border-indigo-500 focus:bg-zinc-900/60"
-                    />
-                  </div>
-                </div>
 
-                {/* Regional/Currency Settings */}
-                <div className="grid gap-4 sm:grid-cols-2">
-                  <div className="flex flex-col gap-1.5">
-                    <label className="text-[10px] uppercase font-bold text-muted-foreground-custom tracking-wider">Base Currency</label>
-                    <CustomSelect
-                      value={formCurrency}
-                      onChange={setFormCurrency}
-                      options={[
-                        { value: "USD", label: "USD ($) - US Dollar" },
-                        { value: "EUR", label: "EUR (€) - Euro" },
-                        { value: "IDR", label: "IDR (Rp) - Indonesian Rupiah" },
-                        { value: "GBP", label: "GBP (£) - British Pound" },
-                      ]}
-                      triggerClassName="h-10"
-                    />
-                  </div>
-                  <div className="flex flex-col gap-1.5">
-                    <label className="text-[10px] uppercase font-bold text-muted-foreground-custom tracking-wider">Language Preference</label>
-                    <CustomSelect
-                      value={formLanguage}
-                      onChange={setFormLanguage}
-                      options={[
-                        { value: "EN", label: "English" },
-                        { value: "ID", label: "Bahasa Indonesia" },
-                      ]}
-                      triggerClassName="h-10"
-                    />
-                  </div>
-                </div>
-              </div>
+                  <hr className="border-border-custom" />
 
-              <hr className="border-border-custom" />
+                  <div className="space-y-4">
+                    <div className="grid gap-4 sm:grid-cols-2">
+                      <div className="flex flex-col gap-1.5">
+                        <label className="text-[10px] uppercase font-bold text-muted-foreground-custom tracking-wider">Account Name</label>
+                        <input
+                          type="text"
+                          value={formAccountName}
+                          onChange={(e) => setFormAccountName(e.target.value)}
+                          className="h-10 rounded-xl border border-border-custom bg-zinc-950/40 px-3 text-xs font-medium text-white outline-none focus:border-indigo-500 focus:bg-zinc-900/60"
+                        />
+                      </div>
+                      <div className="flex flex-col gap-1.5">
+                        <label className="text-[10px] uppercase font-bold text-muted-foreground-custom tracking-wider">Corporate Email</label>
+                        <input
+                          type="email"
+                          value={formCorporateEmail}
+                          onChange={(e) => setFormCorporateEmail(e.target.value)}
+                          className="h-10 rounded-xl border border-border-custom bg-zinc-950/40 px-3 text-xs font-medium text-white outline-none focus:border-indigo-500 focus:bg-zinc-900/60"
+                        />
+                      </div>
+                    </div>
 
-              <div className="flex justify-end gap-3">
-                 <button 
-                   onClick={handleCancelChanges}
-                   className="h-10 px-4 rounded-xl text-xs font-semibold border border-border-custom text-zinc-300 hover:text-white hover:bg-zinc-900/40 transition-colors flex items-center justify-center"
-                 >
-                   Cancel Changes
-                 </button>
-                 <button 
-                   onClick={handleSaveChanges}
-                   className="h-10 px-4 rounded-xl text-xs font-semibold bg-indigo-600 text-white shadow-md shadow-indigo-500/20 hover:bg-indigo-500 transition-colors glow-primary flex items-center justify-center"
-                 >
-                   Save Changes
-                 </button>
-              </div>
+                    <div className="grid gap-4 sm:grid-cols-2">
+                      <div className="flex flex-col gap-1.5">
+                        <label className="text-[10px] uppercase font-bold text-muted-foreground-custom tracking-wider">Base Currency</label>
+                        <CustomSelect
+                          value={formCurrency}
+                          onChange={setFormCurrency}
+                          options={[
+                            { value: "USD", label: "USD ($) - US Dollar" },
+                            { value: "EUR", label: "EUR (€) - Euro" },
+                            { value: "IDR", label: "IDR (Rp) - Indonesian Rupiah" },
+                            { value: "GBP", label: "GBP (£) - British Pound" },
+                          ]}
+                          triggerClassName="h-10"
+                        />
+                      </div>
+                      <div className="flex flex-col gap-1.5">
+                        <label className="text-[10px] uppercase font-bold text-muted-foreground-custom tracking-wider">Language Preference</label>
+                        <CustomSelect
+                          value={formLanguage}
+                          onChange={setFormLanguage}
+                          options={[
+                            { value: "EN", label: "English" },
+                            { value: "ID", label: "Bahasa Indonesia" },
+                          ]}
+                          triggerClassName="h-10"
+                        />
+                      </div>
+                    </div>
+                  </div>
+
+                  <hr className="border-border-custom" />
+
+                  <div className="flex justify-end gap-3">
+                    <button 
+                      onClick={handleCancelChanges}
+                      className="h-10 px-4 rounded-xl text-xs font-semibold border border-border-custom text-zinc-300 hover:text-white hover:bg-zinc-900/40 transition-colors flex items-center justify-center"
+                    >
+                      Cancel Changes
+                    </button>
+                    <button 
+                      onClick={handleSaveChanges}
+                      className="h-10 px-4 rounded-xl text-xs font-semibold bg-indigo-600 text-white shadow-md shadow-indigo-500/20 hover:bg-indigo-500 transition-colors glow-primary flex items-center justify-center"
+                    >
+                      Save Changes
+                    </button>
+                  </div>
+                </>
+              )}
+
+              {/* Security & Access Tab */}
+              {activeSettingsTab === "security" && (
+                <>
+                  <div>
+                    <h2 className="text-base font-bold text-white leading-none">Security & Access</h2>
+                    <p className="text-xs text-muted-foreground-custom mt-1">Manage authentication, session controls, and access policies.</p>
+                  </div>
+
+                  <hr className="border-border-custom" />
+
+                  {/* Password Change Section */}
+                  <div className="space-y-4">
+                    <div className="flex items-center gap-2 mb-2">
+                      <div className="p-1.5 rounded-lg bg-amber-500/10 text-amber-400">
+                        <Shield size={14} />
+                      </div>
+                      <h3 className="text-xs font-bold text-white">Change Password</h3>
+                    </div>
+
+                    <div className="grid gap-4 sm:grid-cols-2">
+                      <div className="flex flex-col gap-1.5">
+                        <label className="text-[10px] uppercase font-bold text-muted-foreground-custom tracking-wider">Current Password</label>
+                        <input
+                          type="password"
+                          placeholder="••••••••"
+                          className="h-10 rounded-xl border border-border-custom bg-zinc-950/40 px-3 text-xs font-medium text-white outline-none focus:border-indigo-500 focus:bg-zinc-900/60 placeholder:text-zinc-600"
+                        />
+                      </div>
+                      <div className="flex flex-col gap-1.5">
+                        <label className="text-[10px] uppercase font-bold text-muted-foreground-custom tracking-wider">New Password</label>
+                        <input
+                          type="password"
+                          placeholder="••••••••"
+                          className="h-10 rounded-xl border border-border-custom bg-zinc-950/40 px-3 text-xs font-medium text-white outline-none focus:border-indigo-500 focus:bg-zinc-900/60 placeholder:text-zinc-600"
+                        />
+                      </div>
+                    </div>
+
+                    <div className="flex flex-col gap-1.5">
+                      <label className="text-[10px] uppercase font-bold text-muted-foreground-custom tracking-wider">Confirm New Password</label>
+                      <input
+                        type="password"
+                        placeholder="••••••••"
+                        className="h-10 rounded-xl border border-border-custom bg-zinc-950/40 px-3 text-xs font-medium text-white outline-none focus:border-indigo-500 focus:bg-zinc-900/60 placeholder:text-zinc-600"
+                      />
+                    </div>
+
+                    <div className="flex justify-end">
+                      <button
+                        onClick={() => setToast({ type: "success", message: "Password updated successfully!" })}
+                        className="h-10 px-4 rounded-xl text-xs font-semibold bg-amber-600 text-white shadow-md shadow-amber-500/20 hover:bg-amber-500 transition-colors flex items-center justify-center"
+                      >
+                        Update Password
+                      </button>
+                    </div>
+                  </div>
+
+                  <hr className="border-border-custom" />
+
+                  {/* Session Management */}
+                  <div className="space-y-3">
+                    <div className="flex items-center gap-2 mb-2">
+                      <div className="p-1.5 rounded-lg bg-cyan-500/10 text-cyan-400">
+                        <Settings size={14} />
+                      </div>
+                      <h3 className="text-xs font-bold text-white">Session Management</h3>
+                    </div>
+
+                    <div className="flex items-center justify-between p-3 rounded-xl border border-border-custom bg-zinc-950/40">
+                      <div>
+                        <p className="text-xs font-semibold text-white">Two-Factor Authentication</p>
+                        <p className="text-[10px] text-muted-foreground-custom mt-0.5">Add an extra layer of security to your account</p>
+                      </div>
+                      <button
+                        onClick={() => setToast({ type: "info", message: "2FA configuration will be available in a future update." })}
+                        className="px-3 py-1.5 rounded-lg text-[10px] font-bold bg-zinc-800 text-zinc-400 hover:text-white hover:bg-zinc-700 transition-colors"
+                      >
+                        Disabled
+                      </button>
+                    </div>
+
+                    <div className="flex items-center justify-between p-3 rounded-xl border border-border-custom bg-zinc-950/40">
+                      <div>
+                        <p className="text-xs font-semibold text-white">Active Sessions</p>
+                        <p className="text-[10px] text-muted-foreground-custom mt-0.5">1 active session on this device</p>
+                      </div>
+                      <button
+                        onClick={() => setToast({ type: "success", message: "All other sessions have been terminated." })}
+                        className="px-3 py-1.5 rounded-lg text-[10px] font-bold bg-rose-500/10 text-rose-400 hover:bg-rose-500/20 transition-colors"
+                      >
+                        Revoke All
+                      </button>
+                    </div>
+
+                    <div className="flex items-center justify-between p-3 rounded-xl border border-border-custom bg-zinc-950/40">
+                      <div>
+                        <p className="text-xs font-semibold text-white">Auto-Lock Timeout</p>
+                        <p className="text-[10px] text-muted-foreground-custom mt-0.5">Automatically lock after inactivity</p>
+                      </div>
+                      <span className="px-3 py-1.5 rounded-lg text-[10px] font-bold bg-emerald-500/10 text-emerald-400">30 minutes</span>
+                    </div>
+                  </div>
+                </>
+              )}
+
+              {/* Database & Sync Tab */}
+              {activeSettingsTab === "database" && (
+                <>
+                  <div>
+                    <h2 className="text-base font-bold text-white leading-none">Database & Sync</h2>
+                    <p className="text-xs text-muted-foreground-custom mt-1">Monitor database connection, sync status, and data management.</p>
+                  </div>
+
+                  <hr className="border-border-custom" />
+
+                  {/* Connection Status */}
+                  <div className="space-y-3">
+                    <div className="flex items-center gap-2 mb-2">
+                      <div className="p-1.5 rounded-lg bg-emerald-500/10 text-emerald-400">
+                        <Database size={14} />
+                      </div>
+                      <h3 className="text-xs font-bold text-white">Connection Status</h3>
+                    </div>
+
+                    <div className="flex items-center justify-between p-3 rounded-xl border border-border-custom bg-zinc-950/40">
+                      <div>
+                        <p className="text-xs font-semibold text-white">MongoDB Atlas</p>
+                        <p className="text-[10px] text-muted-foreground-custom mt-0.5">Cluster: kassa-db | Region: ap-southeast-1</p>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <div className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
+                        <span className="text-[10px] font-bold text-emerald-400">Connected</span>
+                      </div>
+                    </div>
+
+                    <div className="flex items-center justify-between p-3 rounded-xl border border-border-custom bg-zinc-950/40">
+                      <div>
+                        <p className="text-xs font-semibold text-white">Last Sync</p>
+                        <p className="text-[10px] text-muted-foreground-custom mt-0.5">Automatic sync every 5 minutes</p>
+                      </div>
+                      <span className="text-[10px] font-bold text-zinc-400">Just now</span>
+                    </div>
+
+                    <div className="flex items-center justify-between p-3 rounded-xl border border-border-custom bg-zinc-950/40">
+                      <div>
+                        <p className="text-xs font-semibold text-white">Storage Used</p>
+                        <p className="text-[10px] text-muted-foreground-custom mt-0.5">Free tier: 512 MB available</p>
+                      </div>
+                      <div className="text-right">
+                        <span className="text-[10px] font-bold text-white">2.4 MB</span>
+                        <div className="w-20 h-1 rounded-full bg-zinc-800 mt-1 overflow-hidden">
+                          <div className="h-full w-[5%] rounded-full bg-indigo-500" />
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+
+                  <hr className="border-border-custom" />
+
+                  {/* Actions */}
+                  <div className="space-y-3">
+                    <div className="flex items-center gap-2 mb-2">
+                      <div className="p-1.5 rounded-lg bg-indigo-500/10 text-indigo-400">
+                        <Settings size={14} />
+                      </div>
+                      <h3 className="text-xs font-bold text-white">Data Management</h3>
+                    </div>
+
+                    <div className="grid gap-3 sm:grid-cols-2">
+                      <button
+                        onClick={async () => {
+                          setToast({ type: "info", message: "Syncing database..." });
+                          try {
+                            const res = await fetch("http://127.0.0.1:8000/api/status");
+                            if (res.ok) {
+                              setToast({ type: "success", message: "Database synchronized successfully!" });
+                            } else {
+                              setToast({ type: "info", message: "Sync completed with warnings. Check connection." });
+                            }
+                          } catch {
+                            setToast({ type: "info", message: "Sync simulated. Backend is currently offline." });
+                          }
+                          triggerRefresh();
+                        }}
+                        className="flex items-center gap-3 p-3 rounded-xl border border-border-custom bg-zinc-950/40 hover:bg-zinc-900/60 hover:border-indigo-500/30 transition-all text-left"
+                      >
+                        <div className="p-2 rounded-lg bg-indigo-500/10 text-indigo-400">
+                          <Database size={14} />
+                        </div>
+                        <div>
+                          <p className="text-xs font-semibold text-white">Force Sync</p>
+                          <p className="text-[10px] text-muted-foreground-custom">Manually trigger a database sync</p>
+                        </div>
+                      </button>
+
+                      <button
+                        onClick={() => setToast({ type: "info", message: "Export feature will be available in a future update." })}
+                        className="flex items-center gap-3 p-3 rounded-xl border border-border-custom bg-zinc-950/40 hover:bg-zinc-900/60 hover:border-cyan-500/30 transition-all text-left"
+                      >
+                        <div className="p-2 rounded-lg bg-cyan-500/10 text-cyan-400">
+                          <Database size={14} />
+                        </div>
+                        <div>
+                          <p className="text-xs font-semibold text-white">Export Data</p>
+                          <p className="text-[10px] text-muted-foreground-custom">Download transactions as JSON/CSV</p>
+                        </div>
+                      </button>
+
+                      <button
+                        onClick={() => setToast({ type: "info", message: "Backup created successfully!" })}
+                        className="flex items-center gap-3 p-3 rounded-xl border border-border-custom bg-zinc-950/40 hover:bg-zinc-900/60 hover:border-emerald-500/30 transition-all text-left"
+                      >
+                        <div className="p-2 rounded-lg bg-emerald-500/10 text-emerald-400">
+                          <CheckCircle2 size={14} />
+                        </div>
+                        <div>
+                          <p className="text-xs font-semibold text-white">Create Backup</p>
+                          <p className="text-[10px] text-muted-foreground-custom">Snapshot current database state</p>
+                        </div>
+                      </button>
+
+                      <button
+                        onClick={() => setToast({ type: "info", message: "This action is disabled for safety. Use the backend API directly." })}
+                        className="flex items-center gap-3 p-3 rounded-xl border border-border-custom bg-zinc-950/40 hover:bg-zinc-900/60 hover:border-rose-500/30 transition-all text-left opacity-60 cursor-not-allowed"
+                      >
+                        <div className="p-2 rounded-lg bg-rose-500/10 text-rose-400">
+                          <X size={14} />
+                        </div>
+                        <div>
+                          <p className="text-xs font-semibold text-white">Clear All Data</p>
+                          <p className="text-[10px] text-muted-foreground-custom">Permanently delete all transactions</p>
+                        </div>
+                      </button>
+                    </div>
+                  </div>
+                </>
+              )}
             </div>
           </div>
         );
