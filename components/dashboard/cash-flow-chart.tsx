@@ -248,7 +248,7 @@ export default function CashFlowChart({ currency = "USD", language = "EN" }: { c
               axisLine={false}
               tickFormatter={formatYAxisTick}
             />
-            <Tooltip content={<CustomTooltip currency={currency} />} cursor={{ stroke: "rgba(255, 255, 255, 0.05)" }} />
+            <Tooltip content={<CustomTooltip currency={currency} language={language} />} cursor={{ stroke: "rgba(255, 255, 255, 0.05)" }} />
             <Legend
               verticalAlign="top"
               height={36}
