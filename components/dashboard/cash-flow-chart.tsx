@@ -28,7 +28,7 @@ const CustomTooltip = ({ active, payload, label, currency = "USD", language = "E
   if (active && payload && payload.length) {
     return (
       <div className="glass-card px-4 py-3 rounded-xl border border-white/10 shadow-xl">
-        <p className="text-xs font-semibold text-zinc-400 mb-1">{label}</p>
+        <p className="text-xs font-semibold text-zinc-400 mb-1">{label ? t(label, language) : ""}</p>
         <div className="space-y-1">
           {payload.map((entry: any, index: number) => (
             <div key={index} className="flex items-center justify-between gap-6 text-xs">
@@ -240,6 +240,7 @@ export default function CashFlowChart({ currency = "USD", language = "EN" }: { c
               tickLine={false}
               axisLine={false}
               dy={10}
+              tickFormatter={(val) => t(val, language)}
             />
             <YAxis
               stroke="#64748b"

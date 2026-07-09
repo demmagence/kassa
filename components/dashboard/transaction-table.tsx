@@ -185,7 +185,7 @@ export default function TransactionTable({
                   {/* Category */}
                   <td className="py-3.5">
                     <span className="px-2 py-0.5 rounded bg-zinc-900 border border-border-custom text-[10px] text-zinc-300 font-semibold uppercase tracking-wide">
-                      {tx.category}
+                      {t(tx.category, language)}
                     </span>
                   </td>
 
@@ -214,7 +214,7 @@ export default function TransactionTable({
             ) : (
               <tr>
                 <td colSpan={5} className="py-8 text-center text-muted-foreground-custom">
-                  No transactions found matching the selected filters.
+                  {t("No transactions found matching the selected filters.", language)}
                 </td>
               </tr>
             )}
