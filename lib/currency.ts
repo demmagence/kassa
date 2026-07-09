@@ -33,6 +33,17 @@ export function convertFromUSD(amountUSD: number, targetCurrency: string): numbe
 }
 
 /**
+ * Convert an amount from the target currency back to USD.
+ * @param amountTarget - The amount in the target currency
+ * @param sourceCurrency - The source currency code (USD, IDR, EUR, GBP)
+ * @returns Converted amount in USD
+ */
+export function convertToUSD(amountTarget: number, sourceCurrency: string): number {
+  const rate = EXCHANGE_RATES[sourceCurrency] ?? 1;
+  return amountTarget / rate;
+}
+
+/**
  * Format an amount with proper currency symbol, locale-aware formatting,
  * and automatic USD → target currency conversion.
  *
@@ -117,11 +128,22 @@ export function formatYAxisValue(value: number, currency: string): string {
   const abs = Math.abs(converted);
   const symbol = getCurrencySymbol(currency);
 
+  if (currency === "IDR") {
+    if (abs >= 1_000_000) {
+      return `${symbol}${(converted / 1_000_000).toFixed(1)}jt`;
+    }
+    if (abs >= 1_000) {
+      return `${symbol}${(converted / 1_000).toFixed(0)}rb`;
+    }
+    return `${symbol}${converted.toFixed(0)}`;
+  }
+
+  // Default / USD style
   if (abs >= 1_000_000) {
-    return `${symbol}${(converted / 1_000_000).toFixed(1)}jt`;
+    return `${symbol}${(converted / 1_000_000).toFixed(1)}M`;
   }
   if (abs >= 1_000) {
-    return `${symbol}${(converted / 1_000).toFixed(0)}rb`;
+    return `${symbol}${(converted / 1_000).toFixed(0)}K`;
   }
   return `${symbol}${converted.toFixed(0)}`;
 }
