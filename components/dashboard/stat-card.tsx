@@ -238,28 +238,12 @@ export default function StatsGrid({ refreshKey, currency = "USD", language = "EN
     savingsRate: 0
   };
 
-  const getCurrencySymbol = (cur: string) => {
-    switch (cur) {
-      case "EUR": return "€";
-      case "IDR": return "Rp";
-      case "GBP": return "£";
-      case "USD":
-      default:
-        return "$";
-    }
-  };
-
   const getNetBalanceIcon = (cur: string) => {
-    switch (cur) {
-      case "EUR": return <span className="text-base font-extrabold">€</span>;
-      case "IDR": return <span className="text-[10px] font-extrabold">Rp</span>;
-      case "GBP": return <span className="text-base font-extrabold">£</span>;
-      default:
-        return <DollarSign size={20} />;
+    if (cur === "IDR") {
+      return <span className="text-[10px] font-extrabold">Rp</span>;
     }
+    return <DollarSign size={20} />;
   };
-
-  const symbol = getCurrencySymbol(currency);
 
   return (
     <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-4">

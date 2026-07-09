@@ -5,6 +5,7 @@ import { X, Calendar, Tag, AlertCircle } from "lucide-react";
 import CustomSelect from "./custom-select";
 import CustomDatePicker from "./custom-datepicker";
 import { t } from "@/lib/locales";
+import { convertToUSD } from "@/lib/currency";
 
 interface NewTransactionModalProps {
   isOpen: boolean;
@@ -77,8 +78,11 @@ export default function NewTransactionModal({
       return;
     }
 
+    // Convert amount to USD base before sending to database
+    const amountUSD = convertToUSD(parsedAmount, currency);
+
     const payload = {
-      amount: parsedAmount,
+      amount: amountUSD,
       type,
       category,
       date: new Date(date).toISOString(),
@@ -134,7 +138,7 @@ export default function NewTransactionModal({
           <span className="flex-shrink-0 text-rose-500 mt-0.5">
             <AlertCircle size={16} />
           </span>
-          <div className="flex-1 leading-normal">{activeError}</div>
+          <div className="flex-1 leading-normal">{t(activeError, language)}</div>
           <button
             type="button"
             onClick={() => setError("")}
@@ -191,7 +195,7 @@ export default function NewTransactionModal({
             <label className="text-[10px] uppercase font-bold text-muted-foreground-custom tracking-wider">{t("Amount", language)}</label>
             <div className="relative">
               <span className="absolute top-1/2 left-3.5 -translate-y-1/2 text-muted-foreground-custom text-xs font-bold">
-                {currency === "IDR" ? "Rp" : currency === "EUR" ? "€" : currency === "GBP" ? "£" : "$"}
+                {currency === "IDR" ? "Rp" : "$"}
               </span>
               <input
                 type="text"
@@ -217,7 +221,7 @@ export default function NewTransactionModal({
               <CustomSelect
                 value={category}
                 onChange={setCategory}
-                options={categories.map((c) => ({ value: c, label: c }))}
+                options={categories.map((c) => ({ value: c, label: t(c, language) }))}
                 triggerClassName="h-10"
               />
             </div>
@@ -227,6 +231,7 @@ export default function NewTransactionModal({
                  value={date}
                  onChange={setDate}
                  triggerClassName="h-10"
+                 language={language}
                />
             </div>
           </div>

@@ -10,7 +10,7 @@ import NewTransactionModal from "@/components/dashboard/new-transaction-modal";
 import CustomSelect from "@/components/dashboard/custom-select";
 import { formatCurrency } from "@/lib/currency";
 import { t } from "@/lib/locales";
-import { Sliders, Sparkles, CheckCircle2, Info, X } from "lucide-react";
+import { Sliders, Sparkles } from "lucide-react";
 
 
 export default function Home() {
@@ -19,35 +19,38 @@ export default function Home() {
   const [refreshKey, setRefreshKey] = useState(0);
   const [searchQuery, setSearchQuery] = useState("");
 
-  // Configuration States (Source of Truth) — lazy initialized from localStorage
-  const getLs = (key: string, fallback: string) => {
-    if (typeof window === "undefined") return fallback;
-    try { return localStorage.getItem(key) || fallback; } catch { return fallback; }
-  };
+  const [accountName, setAccountName] = useState("Administrator");
+  const [corporateEmail, setCorporateEmail] = useState("admin@kassa.io");
+  const [currency, setCurrency] = useState("USD");
+  const [language, setLanguage] = useState("EN");
 
-  const [accountName, setAccountName] = useState(() => getLs("kassa_account_name", "Administrator"));
-  const [corporateEmail, setCorporateEmail] = useState(() => getLs("kassa_corporate_email", "admin@kassa.io"));
-  const [currency, setCurrency] = useState(() => getLs("kassa_currency", "USD"));
-  const [language, setLanguage] = useState(() => getLs("kassa_language", "EN"));
-
-  // Form Edit States — also lazy init from localStorage so they match on mount
-  const [formAccountName, setFormAccountName] = useState(() => getLs("kassa_account_name", "Administrator"));
-  const [formCorporateEmail, setFormCorporateEmail] = useState(() => getLs("kassa_corporate_email", "admin@kassa.io"));
-  const [formCurrency, setFormCurrency] = useState(() => getLs("kassa_currency", "USD"));
-  const [formLanguage, setFormLanguage] = useState(() => getLs("kassa_language", "EN"));
-
-
-  // Toast Notification States
-  const [toast, setToast] = useState<{ type: "success" | "info" | null; message: string }>({ type: null, message: "" });
+  // Form Edit States
+  const [formAccountName, setFormAccountName] = useState("Administrator");
+  const [formCorporateEmail, setFormCorporateEmail] = useState("admin@kassa.io");
+  const [formCurrency, setFormCurrency] = useState("USD");
+  const [formLanguage, setFormLanguage] = useState("EN");
 
   React.useEffect(() => {
-    if (toast.type) {
-      const timer = setTimeout(() => {
-        setToast({ type: null, message: "" });
-      }, 4000);
-      return () => clearTimeout(timer);
+    if (typeof window !== "undefined") {
+      const storedAccountName = localStorage.getItem("kassa_account_name") || "Administrator";
+      const storedCorporateEmail = localStorage.getItem("kassa_corporate_email") || "admin@kassa.io";
+      const storedCurrency = localStorage.getItem("kassa_currency") || "USD";
+      const storedLanguage = localStorage.getItem("kassa_language") || "EN";
+
+      setAccountName(storedAccountName);
+      setCorporateEmail(storedCorporateEmail);
+      setCurrency(storedCurrency);
+      setLanguage(storedLanguage);
+
+      setFormAccountName(storedAccountName);
+      setFormCorporateEmail(storedCorporateEmail);
+      setFormCurrency(storedCurrency);
+      setFormLanguage(storedLanguage);
     }
-  }, [toast]);
+  }, []);
+
+
+
   // symbol is no longer used directly; formatCurrency handles it
 
   const [stats, setStats] = useState<{
@@ -117,7 +120,6 @@ export default function Home() {
     localStorage.setItem("kassa_currency", formCurrency);
     localStorage.setItem("kassa_language", formLanguage);
 
-    setToast({ type: "success", message: "General Configuration saved successfully!" });
     triggerRefresh();
   };
 
@@ -126,8 +128,6 @@ export default function Home() {
     setFormCorporateEmail(corporateEmail);
     setFormCurrency(currency);
     setFormLanguage(language);
-
-    setToast({ type: "info", message: "Changes discarded." });
   };
 
 
@@ -278,13 +278,10 @@ export default function Home() {
                         value={formCurrency}
                         onChange={(val) => {
                           setFormCurrency(val);
-                          setCurrency(val);
                         }}
                         options={[
                           { value: "USD", label: "USD ($) - US Dollar" },
-                          { value: "EUR", label: "EUR (€) - Euro" },
                           { value: "IDR", label: "IDR (Rp) - Indonesian Rupiah" },
-                          { value: "GBP", label: "GBP (£) - British Pound" },
                         ]}
                         triggerClassName="h-10"
                       />
@@ -295,7 +292,6 @@ export default function Home() {
                         value={formLanguage}
                         onChange={(val) => {
                           setFormLanguage(val);
-                          setLanguage(val);
                         }}
                         options={[
                           { value: "EN", label: "English" },
@@ -376,36 +372,7 @@ export default function Home() {
         currency={currency}
       />
 
-      {/* Floating Toast Notification */}
-      <div 
-        className={`fixed top-6 right-6 z-100 w-full max-w-sm transition-all duration-300 ease-out ${
-          toast.type 
-            ? "opacity-100 translate-x-0 scale-100" 
-            : "opacity-0 translate-x-8 scale-95 pointer-events-none"
-        }`}
-      >
-        <div className={`flex items-center gap-3 p-4 rounded-xl backdrop-blur-xl border shadow-2xl text-xs font-semibold ${
-          toast.type === "success"
-            ? "bg-zinc-950/85 border-emerald-500/20 shadow-emerald-500/5 text-emerald-400"
-            : "bg-zinc-950/85 border-indigo-500/20 shadow-indigo-500/5 text-indigo-400"
-        }`}>
-          <div className={`shrink-0 flex items-center justify-center w-8 h-8 rounded-lg ${
-            toast.type === "success" ? "bg-emerald-500/10 text-emerald-400" : "bg-indigo-500/10 text-indigo-400"
-          }`}>
-            {toast.type === "success" ? <CheckCircle2 size={18} /> : <Info size={18} />}
-          </div>
-          <div className="flex-1 min-w-0">
-            <p className="text-zinc-200 font-medium text-xs">{toast.message}</p>
-          </div>
-          <button
-            type="button"
-            onClick={() => setToast({ type: null, message: "" })}
-            className="p-1.5 rounded-lg hover:bg-white/5 text-zinc-400 hover:text-white transition-colors"
-          >
-            <X size={14} />
-          </button>
-        </div>
-      </div>
+
     </div>
   );
 }
