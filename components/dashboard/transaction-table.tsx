@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
-import { mockTransactions, Transaction } from "@/data/mock-data";
+import { Transaction } from "@/data/mock-data";
 import { ArrowUpRight, ArrowDownRight, Search, CheckCircle2, AlertCircle, Clock } from "lucide-react";
 import { formatCurrency } from "@/lib/currency";
 import { t } from "@/lib/locales";
@@ -62,7 +62,7 @@ export default function TransactionTable({
 
         setTransactions(formatted);
       } catch (err) {
-        setTransactions(mockTransactions);
+        setTransactions([]);
       }
     }
     fetchTransactions();

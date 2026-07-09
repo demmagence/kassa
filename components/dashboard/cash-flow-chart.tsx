@@ -11,7 +11,7 @@ import {
   ResponsiveContainer,
   Legend,
 } from "recharts";
-import { mockMonthlyCashFlow, mockWeeklyCashFlow } from "@/data/mock-data";
+
 import { BarChart2, TrendingUp } from "lucide-react";
 import { formatCurrency, formatYAxisValue, getCurrencySymbol } from "@/lib/currency";
 import { t } from "@/lib/locales";
@@ -144,10 +144,10 @@ export default function CashFlowChart({ currency = "USD", language = "EN" }: { c
 
         setChartData({ monthly, weekly });
       } catch (err) {
-        // Fallback to mock data if API offline
+        // Clear chart data if API offline
         setChartData({
-          monthly: mockMonthlyCashFlow,
-          weekly: mockWeeklyCashFlow
+          monthly: [],
+          weekly: []
         });
       } finally {
         setIsLoading(false);
