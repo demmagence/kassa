@@ -217,12 +217,12 @@ export default function StatsGrid({ refreshKey, currency = "USD", language = "EN
           savingsRate: parseFloat(savingsRate.toFixed(1))
         });
       } catch (err) {
-        // Fallback to mock defaults if API offline
+        // Clear stats if API offline
         setStats({
-          netBalance: 289450,
-          totalIncome: 95000,
-          totalExpenses: 58000,
-          savingsRate: 38.9
+          netBalance: 0,
+          totalIncome: 0,
+          totalExpenses: 0,
+          savingsRate: 0
         });
       } finally {
         setIsLoading(false);
