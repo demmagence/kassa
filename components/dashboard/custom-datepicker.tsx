@@ -2,12 +2,14 @@
 
 import React, { useState, useRef, useEffect, useLayoutEffect } from "react";
 import { Calendar as CalendarIcon, ChevronLeft, ChevronRight } from "lucide-react";
+import { t } from "@/lib/locales";
 
 interface CustomDatePickerProps {
   value: string; // YYYY-MM-DD
   onChange: (value: string) => void;
   className?: string;
   triggerClassName?: string;
+  language?: string;
 }
 
 const MONTHS = [
@@ -32,6 +34,7 @@ export default function CustomDatePicker({
   onChange,
   className = "",
   triggerClassName = "",
+  language = "EN",
 }: CustomDatePickerProps) {
   const [isOpen, setIsOpen] = useState(false);
   const [maxHeight, setMaxHeight] = useState<number | null>(null);
@@ -230,7 +233,7 @@ export default function CustomDatePicker({
           {/* Header Controls */}
           <div className="flex items-center justify-between">
             <h3 className="text-[9px] font-bold text-white tracking-wide">
-              {MONTHS[viewMonth]} {viewYear}
+              {t(MONTHS[viewMonth], language)} {viewYear}
             </h3>
             <div className="flex items-center gap-0.5">
               <button
@@ -257,7 +260,7 @@ export default function CustomDatePicker({
                 key={wd}
                 className="text-[7px] font-bold text-muted-foreground-custom tracking-wider uppercase py-0"
               >
-                {wd}
+                {t(wd, language)}
               </span>
             ))}
           </div>
@@ -296,14 +299,14 @@ export default function CustomDatePicker({
               onClick={handleToday}
               className="text-[7px] font-bold uppercase tracking-wider text-indigo-400 hover:text-indigo-300 transition-colors"
             >
-              Today
+              {t("Today", language)}
             </button>
             <button
               type="button"
               onClick={() => setIsOpen(false)}
               className="text-[7px] font-bold uppercase tracking-wider text-zinc-400 hover:text-white transition-colors"
             >
-              Close
+              {t("Close", language)}
             </button>
           </div>
         </div>

@@ -164,6 +164,66 @@ const id: Record<string, string> = {
 
   // Notification bell
   "Toggle Menu": "Buka/Tutup Menu",
+
+  // Month Names
+  "January": "Januari",
+  "February": "Februari",
+  "March": "Maret",
+  "April": "April",
+  "May": "Mei",
+  "June": "Juni",
+  "July": "Juli",
+  "August": "Agustus",
+  "September": "September",
+  "October": "Oktober",
+  "November": "November",
+  "December": "Desember",
+
+  // Weekdays (short)
+  "Su": "Min",
+  "Mo": "Sen",
+  "Tu": "Sel",
+  "We": "Rab",
+  "Th": "Kam",
+  "Fr": "Jum",
+  "Sa": "Sab",
+
+  // Chart months (short)
+  "Jan": "Jan",
+  "Feb": "Feb",
+  "Mar": "Mar",
+  "Apr": "Apr",
+  "Jun": "Jun",
+  "Jul": "Jul",
+  "Aug": "Agt",
+  "Sep": "Sep",
+  "Oct": "Okt",
+  "Nov": "Nov",
+  "Dec": "Des",
+
+  // Chart weeks
+  "Week 1": "Minggu 1",
+  "Week 2": "Minggu 2",
+  "Week 3": "Minggu 3",
+  "Week 4": "Minggu 4",
+
+  // Transaction Categories
+  "Infrastructure": "Infrastruktur",
+  "Freelance": "Pekerjaan Lepas",
+  "Rent & Facilities": "Sewa & Fasilitas",
+  "Design Resources": "Sumber Daya Desain",
+  "Consulting": "Konsultasi",
+  "Software": "Perangkat Lunak",
+  "Development": "Pengembangan",
+  "Utilities": "Utilitas",
+  "Marketing": "Pemasaran",
+  "Refunds": "Pengembalian Dana",
+  "SaaS Subscription": "Langganan SaaS",
+  "Salary": "Gaji",
+
+  // Datepicker footer buttons
+  "Today": "Hari Ini",
+  "Close": "Tutup",
 };
 
 const en: Record<string, string> = {};
