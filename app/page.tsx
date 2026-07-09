@@ -81,12 +81,12 @@ export default function Home() {
           savingsRate: parseFloat(savingsRate.toFixed(1))
         });
       } catch {
-        // Default fallback mock values if offline
+        // Clear stats if offline
         setStats({
-          netBalance: 289450,
-          totalIncome: 95000,
-          totalExpenses: 58000,
-          savingsRate: 38.9
+          netBalance: 0,
+          totalIncome: 0,
+          totalExpenses: 0,
+          savingsRate: 0
         });
       } finally {
         setIsStatsLoading(false);
