@@ -6,7 +6,6 @@ import {
   Receipt,
   TrendingUp,
   Settings,
-  Wallet,
   Menu,
   X,
   User,
@@ -56,8 +55,8 @@ export default function Sidebar({
       >
         {/* Brand Header */}
         <div className="p-6 flex items-center gap-3">
-          <div className="flex items-center justify-center w-10 h-10 rounded-xl bg-indigo-600 text-white shadow-md shadow-indigo-500/25">
-            <Wallet size={20} className="animate-pulse" />
+          <div className="flex items-center justify-center w-10 h-10 rounded-xl overflow-hidden shadow-md shadow-indigo-500/10 bg-zinc-900">
+            <img src="/images/kassa.png" alt="Kassa Logo" className="w-full h-full object-cover" />
           </div>
           <div>
             <span className="font-bold text-xl tracking-tight text-white">Kassa</span>
